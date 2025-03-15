@@ -1,0 +1,43 @@
+.WelcomePage {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: linear-gradient(180deg, #d8a892 0%, #b56f5b 100%);
+}
+
+.welcome-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+/* *** Styles User Count *** */
+
+.user-count-navbar {
+  color: #fff;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .user-count-navbar {
+      font-size: 0.9rem;
+  }
+}
+
+.ayaphoto {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  padding: 0px;
+}
+
+.container {  
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}

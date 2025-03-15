@@ -1,0 +1,15 @@
+.cookie-disclaimer {
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 15px 0;
+    font-size: 0.9rem;
+    z-index: 11;
+  }
+  
+  .cookie-disclaimer a {
+    color: #BFA380;
+    text-decoration: underline;
+  }
+  
+
+  

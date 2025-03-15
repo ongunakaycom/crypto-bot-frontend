@@ -1,0 +1,29 @@
+.dashboard-header {
+    background-color: #BFA380;
+    display: flex;
+    align-items: center;
+    height: 60px;
+}
+.DashboardLogo {
+    fill: #41280f;
+}
+.dashboard-title {
+    color: #4a3835;
+    font-size: 24px;
+    margin: 0;
+    text-align: left;
+    flex-grow: 1;
+}
+.dashboard-title h2 {
+    margin: 0;
+}
+.dashboard-header-button,
+.dashboard-header-button:hover,
+.dashboard-header-button:active {
+    color: #41280f !important;
+    background: none !important;
+    border: none;
+    cursor: pointer;
+}
+
+  

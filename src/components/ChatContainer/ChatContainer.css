@@ -1,0 +1,29 @@
+.aya-container {
+    background-color: #BFA380;
+    border-radius: 10px;
+    padding: 8px;
+    width: 60%;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100% !important;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .aya-container {
+        width: 80%;
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 480px) {
+    .aya-container {
+        width: 95%;
+    }
+}

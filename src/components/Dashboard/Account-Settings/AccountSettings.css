@@ -1,0 +1,71 @@
+/* AccountSettings.css */
+
+.delete-button {
+  background-color: #d11111;
+  color: #ffffff;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 4px;
+  width: 100%;
+  font-size: 16px;
+}
+
+.profile-picture-container {
+  position: relative;
+  max-width: 120px;
+  max-height: 120px;
+  margin: 0px auto;
+}
+
+.profile-picture {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-picture-label {
+  position: relative;
+  display: block;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.profile-picture-label:hover .overlay {
+  opacity: 1;
+}
+
+.pen-icon {
+  font-size: 24px;
+  color: white;
+}
+
+.city-checkbox {
+  margin-right: 3px;
+}
+
+.venues-checkbox {
+  margin-right: 10px;
+}
+
+.venues-card {
+  background-color: #bfa380;
+  border-color: #683B2B;
+}
+
+.venue-unselected {
+  opacity: 50%;
+}

@@ -1,0 +1,17 @@
+.dates-card {
+    background-color: #BFA380;
+    margin: 15px;
+  }
+
+  .confirmation-status {
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  
+  .confirmed {
+    color: green;
+  }
+  
+  .not-confirmed {
+    color: black;
+  }
