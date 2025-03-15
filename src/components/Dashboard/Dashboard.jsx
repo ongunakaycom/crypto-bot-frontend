@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc} from "firebase/firestore";
-import { Date_Manager } from '../../Databases/date_manager';
+import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 import { getDatabase, ref } from 'firebase/database';
-import { Communicator } from '../../Databases/communicate';
 import DashboardHeader from './DashboardHeader/DashboardHeader';
 import ChatContainer from '../ChatContainer/ChatContainer';
 import Footer from '../Footer/Footer'; 
@@ -15,7 +13,6 @@ const Dashboard = () => {
   const [displayName, setDisplayName] = useState('');
   const defaultAvatar = 'https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png'; 
   const [userAvatar, setUserAvatar] = useState(defaultAvatar);
-  const [communicator, setCommunicator] = useState();
   const [userMessagesRef, setUserMessagesRef] = useState(null);
   const [dateManager, setDateManager] = useState();
   const auth = getAuth(); 
@@ -55,11 +52,9 @@ const Dashboard = () => {
     if (!userId || !db) return;
 
     async function fetchData() {
-      const c = await Communicator(userId);
-      setCommunicator(c);
       const userMessagesRef = ref(db, `messages/${userId}`);
       setUserMessagesRef(userMessagesRef);
-      setDateManager(Date_Manager(userId));
+      setDateManager(Date_Manager(userId)); // Assuming this is still needed
     }
 
     fetchData();
@@ -73,7 +68,6 @@ const Dashboard = () => {
           userMessagesRef={userMessagesRef}   
           displayName={displayName} 
           userAvatar={userAvatar}   
-          communicator={communicator}
           dateManager={dateManager}
           error={error}
           setError={setError}

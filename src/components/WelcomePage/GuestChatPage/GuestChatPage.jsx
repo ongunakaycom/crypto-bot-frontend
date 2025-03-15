@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { getAnalytics, logEvent } from "firebase/analytics"; 
 import { getAuth, onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { getDatabase, ref } from 'firebase/database';
-import { AyaForGuest } from '../../../Databases/aya_guest';
 import WelcomePageHeader from '../WelcomePageHeader/WelcomePageHeader';
 import ChatContainer from '../../ChatContainer/ChatContainer';
 import Footer from '../../Footer/Footer'; 
