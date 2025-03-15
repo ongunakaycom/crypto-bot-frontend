@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc} from "firebase/firestore"; //addDoc, query, where, onSnapshot
-import { Date_Manager} from '../../Databases/date_manager';
-import { getDatabase, ref} from 'firebase/database';
-import { AyaForUser} from '../../Databases/aya_brain';
-import { Communicator} from '../../Databases/communicate';
+import { getFirestore, doc, getDoc, setDoc} from "firebase/firestore";
+import { Date_Manager } from '../../Databases/date_manager';
+import { getDatabase, ref } from 'firebase/database';
+import { Communicator } from '../../Databases/communicate';
 import DashboardHeader from './DashboardHeader/DashboardHeader';
 import ChatContainer from '../ChatContainer/ChatContainer';
 import Footer from '../Footer/Footer'; 
-import './Dashboard.css'; 
+import './Dashboard.css';
 
 const Dashboard = () => {
   const [error, setError] = useState(null);
@@ -16,7 +15,6 @@ const Dashboard = () => {
   const [displayName, setDisplayName] = useState('');
   const defaultAvatar = 'https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png'; 
   const [userAvatar, setUserAvatar] = useState(defaultAvatar);
-  const [aya, setAya] = useState();
   const [communicator, setCommunicator] = useState();
   const [userMessagesRef, setUserMessagesRef] = useState(null);
   const [dateManager, setDateManager] = useState();
@@ -54,38 +52,35 @@ const Dashboard = () => {
   }, [auth, displayName, userAvatar]);
 
   useEffect(() => {
-    //can go into effect above!
-    if (!userId) return;
-    if (!db) return;
-    async function fetchAya() {
-      const aya = await AyaForUser(userId);
-      setAya(aya);
+    if (!userId || !db) return;
+
+    async function fetchData() {
       const c = await Communicator(userId);
       setCommunicator(c);
       const userMessagesRef = ref(db, `messages/${userId}`);
       setUserMessagesRef(userMessagesRef);
-      setDateManager(Date_Manager(userId))
+      setDateManager(Date_Manager(userId));
     }
-    fetchAya();
+
+    fetchData();
   }, [userId, db]);
 
   return (
     <div className="Dashboard">
-    <DashboardHeader />
-    <main className="dashboard-content">
-      <ChatContainer    
-        userMessagesRef={userMessagesRef}   
-        displayName={displayName} 
-        userAvatar={userAvatar}   
-        aya={aya}  
-        communicator={communicator}
-        dateManager={dateManager}
-        error={error}
-        setError={setError}
-      />
-    </main>
-    <Footer /> 
-  </div>
+      <DashboardHeader />
+      <main className="dashboard-content">
+        <ChatContainer    
+          userMessagesRef={userMessagesRef}   
+          displayName={displayName} 
+          userAvatar={userAvatar}   
+          communicator={communicator}
+          dateManager={dateManager}
+          error={error}
+          setError={setError}
+        />
+      </main>
+      <Footer /> 
+    </div>
   );
 };
 
