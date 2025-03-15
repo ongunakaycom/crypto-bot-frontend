@@ -15,9 +15,7 @@ const Dashboard = () => {
   const defaultAvatar = 'https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png'; 
   const [userAvatar, setUserAvatar] = useState(defaultAvatar);
   const [aya, setAya] = useState();
-  const [communicator, setCommunicator] = useState();
   const [userMessagesRef, setUserMessagesRef] = useState(null);
-  const [dateManager, setDateManager] = useState();
   const auth = getAuth(); 
   const db = getDatabase();
 
@@ -58,12 +56,10 @@ const Dashboard = () => {
     async function fetchAya() {
       const aya = await AyaForUser(userId);
       setAya(aya);
-      const c = await Communicator(userId);
-      setCommunicator(c);
       const userMessagesRef = ref(db, `messages/${userId}`);
       setUserMessagesRef(userMessagesRef);
-      setDateManager(Date_Manager(userId))
     }
+
     fetchAya();
   }, [userId, db]);
 
@@ -76,8 +72,6 @@ const Dashboard = () => {
         displayName={displayName} 
         userAvatar={userAvatar}   
         aya={aya}  
-        communicator={communicator}
-        dateManager={dateManager}
         error={error}
         setError={setError}
       />
