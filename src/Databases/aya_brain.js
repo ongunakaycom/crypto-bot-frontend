@@ -1,21 +1,18 @@
-import axios from "axios";
+const axios = require("axios");
 
 const AYA_API_URL = "https://api.deepseek.com"; // DeepSeek API Endpoint
 const MODEL_NAME = "deepseek/deepseek-r1:free"; // Fixed to the free model
-const ayaBackendLink = "http://127.0.0.1:5000/api/signals/"; // ✅ Updated Backend URL
+const ayaBackendLink = "http://127.0.0.1:5000/api/signals/"; // ✅ Updated Backend URL without /history path
 
 // 🧠 Aya AI Logic
 export const AyaForUser = async (userId) => {
-    // Fetch chat history from the backend
     let chatHistory = await callFetchHistory(userId);
 
-    // Reload history if needed
     const reloadHistory = async () => {
         console.log("🔄 Reloading history...");
         chatHistory = await callFetchHistory(userId);
     };
 
-    // Greet user or respond based on the history
     const hello = async (displayName) => {
         let responseText = `Hello ${displayName}`;
         if (chatHistory.length < 1) {
@@ -26,7 +23,6 @@ export const AyaForUser = async (userId) => {
         return responseText;
     };
 
-    // Get AI response
     const getAIResponse = async (userPrompt) => {
         try {
             const payload = {
@@ -34,25 +30,15 @@ export const AyaForUser = async (userId) => {
                 messages: [{ role: "user", content: userPrompt }],
             };
 
-            // Call the DeepSeek API to get the response
             const response = await axios.post(`${AYA_API_URL}/generate`, payload, {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${process.env.REACT_APP_DEEPSEEK_API_KEY}`, // Use your environment variable
+                    Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
                 },
             });
 
-            // Extract response text
-            const responseText =
-                response.data.choices?.[0]?.message?.content || "I didn't quite get that.";
-
-            // Update user history in the backend
-            await callUpdateHistory(userId, [
-                ...chatHistory,
-                { role: "user", content: userPrompt },
-                { role: "assistant", content: responseText },
-            ]);
-
+            const responseText = response.data.choices?.[0]?.message?.content || "I didn't quite get that.";
+            await callUpdateHistory(userId, [...chatHistory, { role: "user", content: userPrompt }, { role: "assistant", content: responseText }]);
             return { text: responseText };
         } catch (error) {
             console.error("❌ AI Response Error:", error.message);
@@ -60,14 +46,14 @@ export const AyaForUser = async (userId) => {
         }
     };
 
-    // Return functions for user interaction
     return { getAIResponse, hello, reloadHistory };
 };
 
-// 📜 Fetch User History from the backend
+// 📜 Fetch User History
 const callFetchHistory = async (userId) => {
     try {
-        const res = await axios.get(`${ayaBackendLink}user-history/${userId}`); // Updated path to fetch user history
+        // Removed "/history" from the URL
+        const res = await axios.get(`${ayaBackendLink}user-history/${userId}`); 
         return res.data.history || [];
     } catch (err) {
         console.error("❌ Error fetching history:", err.message);
@@ -75,7 +61,7 @@ const callFetchHistory = async (userId) => {
     }
 };
 
-// 🔄 Update User History on the backend
+// 🔄 Update User History
 const callUpdateHistory = async (userId, history) => {
     try {
         await axios.post(`${ayaBackendLink}updatehistory`, {
