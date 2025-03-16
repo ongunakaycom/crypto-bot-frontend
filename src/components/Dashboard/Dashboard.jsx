@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc} from "firebase/firestore"; //addDoc, query, where, onSnapshot
-import { getDatabase, ref} from 'firebase/database';
-import { AyaForUser} from '../../Databases/aya_brain';
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { getDatabase, ref } from 'firebase/database';
+import { AyaForUser } from '../../Databases/aya_brain';
 import DashboardHeader from './DashboardHeader/DashboardHeader';
 import ChatContainer from '../ChatContainer/ChatContainer';
 import Footer from '../Footer/Footer'; 
@@ -27,7 +27,7 @@ const Dashboard = () => {
         const ur = doc(firestore, "users", user.uid);
         const userSnapshot = await getDoc(ur);
         if (!userSnapshot.exists()) {
-          console.log("user does not exist in firestore");
+          console.log("User does not exist in Firestore");
           setDisplayName(user.displayName.split(' ')[0] || "name");
           setUserAvatar(user.photoURL || defaultAvatar);
           // Create a new user entry
@@ -50,12 +50,11 @@ const Dashboard = () => {
   }, [auth, displayName, userAvatar]);
 
   useEffect(() => {
-    //can go into effect above!
     if (!userId) return;
     if (!db) return;
     async function fetchAya() {
-      const aya = await AyaForUser(userId);
-      setAya(aya);
+      const ayaInstance = await AyaForUser(userId);
+      setAya(ayaInstance);
       const userMessagesRef = ref(db, `messages/${userId}`);
       setUserMessagesRef(userMessagesRef);
     }
@@ -65,19 +64,19 @@ const Dashboard = () => {
 
   return (
     <div className="Dashboard">
-    <DashboardHeader />
-    <main className="dashboard-content">
-      <ChatContainer    
-        userMessagesRef={userMessagesRef}   
-        displayName={displayName} 
-        userAvatar={userAvatar}   
-        aya={aya}  
-        error={error}
-        setError={setError}
-      />
-    </main>
-    <Footer /> 
-  </div>
+      <DashboardHeader />
+      <main className="dashboard-content">
+        <ChatContainer    
+          userMessagesRef={userMessagesRef}   
+          displayName={displayName} 
+          userAvatar={userAvatar}   
+          aya={aya}  
+          error={error}
+          setError={setError}
+        />
+      </main>
+      <Footer /> 
+    </div>
   );
 };
 
