@@ -27,7 +27,7 @@ function WelcomePage() {
                 {t('heading')}
               </h1>
               <p>
-                Aya is your Dr. Love and modern Matchmaker
+              Access Real-Time Signals and Keep Ahead of Market Trends
               </p>
             </Col>
           </Row>
