@@ -14,9 +14,6 @@ const DashboardHeader = () => {
   const navigateToAccountSettings = () => {
     navigate('/account-settings');  
   };
-  const navigateToDates = () => {
-    navigate('/mydates');  
-  };
   const navigateToDashboard = () => {
     navigate('/dashboard');  
   };
@@ -58,9 +55,6 @@ const DashboardHeader = () => {
         <Dropdown.Menu>
         <Dropdown.Item onClick={navigateToDashboard}>
             <BsChatLeft /> Chat with Aya
-          </Dropdown.Item>
-        <Dropdown.Item onClick={navigateToDates}>
-            <AiOutlineHeart /> My Dates
           </Dropdown.Item>
           <Dropdown.Item onClick={navigateToAccountSettings}>
             <AiOutlineSetting /> Account Settings
