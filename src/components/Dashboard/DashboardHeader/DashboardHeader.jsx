@@ -54,7 +54,7 @@ const DashboardHeader = () => {
         </Dropdown.Toggle>
         <Dropdown.Menu>
         <Dropdown.Item onClick={navigateToDashboard}>
-            <BsChatLeft /> Chat with Aya
+            <BsChatLeft /> Chat with Robin Hood
           </Dropdown.Item>
           <Dropdown.Item onClick={navigateToAccountSettings}>
             <AiOutlineSetting /> Account Settings
