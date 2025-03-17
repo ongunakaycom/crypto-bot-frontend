@@ -44,7 +44,7 @@ const DashboardHeader = () => {
     <header className='dashboard-header px-4'>
       <div className="dashboard-title" >
       <img
-        src="./img/logo.svg"
+        src="./img/logo.jpg"
         alt="Aya Matchmaker Logo"
         width="40"
         height="40"

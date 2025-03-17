@@ -1,11 +1,11 @@
 .dashboard-header {
-    background-color: #BFA380;
+    background-color: #000000;
     display: flex;
     align-items: center;
     height: 60px;
 }
 .DashboardLogo {
-    fill: #41280f;
+    fill: #000000;
 }
 .dashboard-title {
     color: #4a3835;
