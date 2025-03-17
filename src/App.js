@@ -12,7 +12,6 @@ import AboutPage from './components/WelcomePage/AboutPage/AboutPage.jsx';
 import GoPremium from './components/CheckoutForm/CheckoutForm.jsx';
 import VerificationPage from './components/WelcomePage/Signup/VerificationPage/VerificationPage.jsx';
 import ProtectedRoute from './components/WelcomePage/ProtectedRoute/ProtectedRoute.jsx';
-import GuestChatPage from './components/WelcomePage/GuestChatPage/GuestChatPage.jsx';
 
 function App() {
   return (
@@ -28,7 +27,6 @@ function App() {
           <Route path="/go-premium" element={<GoPremium />} />
           <Route path="/verification" element={<VerificationPage />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/guestchat" element={<GuestChatPage />} />
         </Routes>
       </div>
     </Router>
