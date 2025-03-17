@@ -17,19 +17,23 @@
 .dashboard-title h2 {
     margin: 0;
 }
+/* General reset for focus, active, hover, and other states */
 .dashboard-header-button,
+.dashboard-header-button:focus,
+.dashboard-header-button:focus-visible,
+.dashboard-header-button:hover,
+.dashboard-header-button:active,
+.dashboard-header-button:focus-within,
+.dashboard-header-button:target {
+    outline: none !important;  /* Ensures no outline is shown */
+    border: none !important;   /* Removes any border */
+    background: none !important;  /* Keeps background transparent if necessary */
+    color: #ffffff !important;   /* Keeps the text color white */
+    cursor: pointer !important;  /* Keeps the pointer cursor */
+}
+
+/* Optional: you can add specific styling for hover or active if needed */
 .dashboard-header-button:hover,
 .dashboard-header-button:active {
-    color: #ffffff !important;
-    background: none !important;
-    border: none;
-    cursor: pointer;
-}
-
-:focus-visible {
-    outline: none; /* Removes the default outline */
-}
-
-.dashboard-header-button:focus-visible {
-    outline: none; /* Ensures no outline is shown on focus */
+    background-color: transparent;  /* Custom background for hover or active */
 }

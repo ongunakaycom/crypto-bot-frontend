@@ -57,12 +57,12 @@
     margin-right: 10px;
 }
 .user-message {
-    background-color: #683B2B;
+    background-color: #08084a;
     align-self: flex-end;
     margin-left: auto;
 }
 .other-message {
-    background-color: #41280f;
+    background-color: #03032f;;
     align-self: flex-start;
 }
 
@@ -73,12 +73,12 @@
 
 /* Scrollbar track background */
 .scrollbar::-webkit-scrollbar-track {
-    background-color: #BFA380;
+    background-color: #ffffff;
 }
 
 /* Scrollbar thumb with background color and border radius */
 .scrollbar::-webkit-scrollbar-thumb {
-    background-color: #683B2B; /* Consistent color */
+    background-color: #20033c; /* Consistent color */
     border-radius: 16px;
 }
 
@@ -95,7 +95,7 @@
 /* Firefox specific scrollbar styling */
 .scrollbar {
     scrollbar-width: thin; /* Makes scrollbar thinner in Firefox */
-    scrollbar-color: #683B2B #BFA380; /* Thumb color then track color */
+    scrollbar-color: #ffffff #040136; /* Thumb color then track color */
 }
 
 .message-text {
