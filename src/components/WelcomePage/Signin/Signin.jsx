@@ -6,7 +6,7 @@ import "./Signin.css";
 import WelcomePageHeader from "../WelcomePageHeader/WelcomePageHeader";
 import { useNavigate } from "react-router-dom";
 import Alert from "../../Alert/Alert"; 
-import ReCAPTCHA from "react-google-recaptcha";
+import HCaptcha from "@hcaptcha/react-hcaptcha"; // Import the hCaptcha component
 
 const SignInComponent = () => {
   const [email, setEmail] = useState("");
@@ -120,9 +120,10 @@ const SignInComponent = () => {
               </label>
 
               <div className="recaptcha-container">
-                <ReCAPTCHA
-                  sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
-                  onChange={handleCaptchaChange}
+                {/* Replace ReCAPTCHA with hCaptcha */}
+                <HCaptcha
+                  sitekey={process.env.REACT_APP_HCAPTCHA_SITE_KEY} // Use the hCaptcha site key
+                  onVerify={handleCaptchaChange}  // hCaptcha token will be passed here
                 />
               </div>
 

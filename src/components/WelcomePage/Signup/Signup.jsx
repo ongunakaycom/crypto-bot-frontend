@@ -7,7 +7,7 @@ import Footer from "../../Footer/Footer";
 import WelcomePageHeader from "../WelcomePageHeader/WelcomePageHeader"; 
 import { useNavigate } from "react-router-dom"; 
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
-import ReCAPTCHA from "react-google-recaptcha"; 
+import HCaptcha from "@hcaptcha/react-hcaptcha"; // Import hCaptcha component
 import Alert from '../../Alert/Alert'; 
 
 const SignUpComponent = () => {
@@ -60,7 +60,7 @@ const SignUpComponent = () => {
     return disposableDomains.includes(domain) || disposableDomains.some(d => domain.endsWith(d));
   };
 
-  // Function to handle reCAPTCHA token change
+  // Function to handle hCaptcha token change
   const handleCaptchaChange = (token) => {
     setCaptchaToken(token); // Store the CAPTCHA token
   };
@@ -69,17 +69,17 @@ const SignUpComponent = () => {
     setAlertMessage(message);
     setAlertType(type);
     setShowAlert(true);
-  }; 
+  };
 
   // Main function to handle signup
   const handleSignUp = async (e) => {
     e.preventDefault(); // Prevent default form submission
 
     // Validate CAPTCHA
-      if (!captchaToken) {
-        displayAlert("Please complete the CAPTCHA to proceed.", "error");
-        return;
-      }
+    if (!captchaToken) {
+      displayAlert("Please complete the CAPTCHA to proceed.", "error");
+      return;
+    }
 
     // Validate email domain
     if (!isValidEmailDomain(email)) {
@@ -104,7 +104,7 @@ const SignUpComponent = () => {
       // Display alert message and delay before redirection
       setAlertMessage("Signup completed! Redirecting you to the verification process...");
       setShowAlert(true);
-      
+
       // Save user details directly into the main database
       const userRef = ref(database, "users/" + user.uid); // Save directly to "users"
       await set(userRef, {
@@ -198,10 +198,10 @@ const SignUpComponent = () => {
                 />
               </label>
 
-              <div className="recaptcha-container">
-                <ReCAPTCHA
-                  sitekey="6LfrimMqAAAAAIOsmGJ1sDCJX_7fUz1xyQGjEd_B" // Use your actual site key
-                  onChange={handleCaptchaChange}
+              <div className="hcaptcha-container">
+                <HCaptcha
+                  sitekey="f1e8f8a6-578e-4476-ab32-80bc848e9bf2" // Replace with your hCaptcha site key
+                  onVerify={handleCaptchaChange} // Callback to handle token
                 />
               </div>
               <a href="/signin"> Already have an account? Sign In </a>

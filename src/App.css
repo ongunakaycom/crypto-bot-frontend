@@ -36,17 +36,19 @@ body::-webkit-scrollbar-button {
   height: 100%;
   width: 100%;
   text-align: center;
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 h1, h2, h3, h4 {
   font-family: 'Playfair Display', serif;
+  color: rgb(255, 255, 255);
 }
 
 p{
   font-family: 'Roboto', sans-serif;
   margin-bottom: 20px;
   font-size: 1rem;
+  color: rgb(255, 255, 255);
 }
 #root {
   height: 100%;
@@ -64,6 +66,7 @@ p{
   background-color:#ffffff;
   width: auto;
   box-shadow: none;
+  color:black
 }
 
 .form-page-form {
