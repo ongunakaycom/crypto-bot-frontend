@@ -83,10 +83,6 @@ function AboutPage() {
                 title: "Post-Date Check-In",
                 text: "Whether the date went great or not so well, Aya follows up with both of you to see how it went. She’ll help facilitate next steps if it’s a good match, and if it didn’t work out, she’ll learn and improve future matches.",
             },
-            {
-                title: "Always Save Face",
-                text: "With Aya being an AI, you can be as quirky or as weird as you want without fear of judgment. Aya understands and supports you all the way.",
-            },
             ].map((item, index) => (
             <Col xs={12} sm={6} md={4} className="d-flex" key={index}>
                 <Card className="mb-4 flex-fill about-card">
@@ -124,14 +120,6 @@ function AboutPage() {
             {
                 title: "Post-Date Support",
                 text: " If you're shy or unsure after the date, Aya helps facilitate further steps. If it wasn’t a good match, she’ll improve her recommendations for future dates.",
-            },
-            {
-                title: "No-Pressure Dates",
-                text: " If you’re just looking for a fun, no-strings-attached date, Aya will match you with someone who has similar expectations, managing both sides from the start.",
-            },
-            {
-                title: "Only Pay When You Go on a Date",
-                text: " The setup, drinks, and more are included. You only pay when Aya successfully arranges a date for you.",
             }
             ].map((item, index) => (
               <Col xs={12} sm={6} md={4} className="d-flex" key={index}>
