@@ -27,7 +27,7 @@ const ChatInput = ({ inputText, setInputText, onSubmit, isSending }) => {
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder={isSending ? "Robin Hood Typing..." : "Type here..."}  // Conditionally change placeholder
+          placeholder={isSending ? "Robin Hood typing..." : "Type here..."}  // Conditionally change placeholder
           className="chat-text-input"
           disabled={isSending}
         />
