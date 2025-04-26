@@ -272,74 +272,75 @@ const handleUpdateProfile = async (e) => {
 
   return (
     <div className="AyaFormPage">
-    <DashboardHeader/>
-    <main className="form-page-content">
-      <div className="form-page-container">
-        <h2>Update your account settings</h2>
-        <div className="form-page-form">
-          <form onSubmit={handleUpdateProfile}>
-            <Row className="mx-0">
-              <Col sm={4}>
-                {/* Profile Picture Upload */}
-                <div className="profile-picture-container">
-                  <input
-                    type="file"
-                    id="profilePictureInput"
-                    accept="image/*"
-                    onChange={handleProfilePictureChange}
-                    style={{ display: 'none' }}
-                  />
-                  <label htmlFor="profilePictureInput" className="profile-picture-label">
-                    <img
-                      src={profilePicture}
-                      alt="Profile"
-                      className="profile-picture"
+      <DashboardHeader />
+      <main className="form-page-content">
+        <div className="form-page-container">
+          <h2>Update your account settings</h2>
+          <div className="form-page-form">
+            <form onSubmit={handleUpdateProfile}>
+              <Row className="mx-0">
+                <Col sm={4}>
+                  {/* Profile Picture Upload */}
+                  <div className="profile-picture-container">
+                    <input
+                      type="file"
+                      id="profilePictureInput"
+                      accept="image/*"
+                      onChange={handleProfilePictureChange}
+                      style={{ display: 'none' }}
                     />
-                    <div className="overlay">
-                      <span className="pen-icon">✏️</span>
-                    </div>
-                  </label>
-                </div>
-              </Col>
-              <Col sm={8}>
-                {/* Username Field */}
-                <label className="text-start">
-                  Username: 
-                  <input
-                    type="text"
-                    placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => {setUsername(e.target.value); setChangedUserName(e.target.value);}}
-                  />
+                    <label htmlFor="profilePictureInput" className="profile-picture-label">
+                      <img
+                        src={profilePicture}
+                        alt="Profile"
+                        className="profile-picture"
+                      />
+                      <div className="overlay">
+                        <span className="pen-icon">✏️</span>
+                      </div>
+                    </label>
+                  </div>
+                </Col>
+                <Col sm={8}>
+                  {/* Username Field */}
+                  <label className="text-start">
+                    Username:
+                    <input
+                      type="text"
+                      placeholder="Enter your username"
+                      value={username}
+                      onChange={(e) => { setUsername(e.target.value); setChangedUserName(e.target.value); }}
+                    />
                   </label>
                   <label className="text-start">
-                  Email: {email}  </label>                
-              </Col>
-            </Row>
+                    Email: {email}
+                  </label>
+                </Col>
+              </Row>
 
-            {/* City Checkboxes */}
-            <div className="city-selection">
-              <label className="text-start" > Places where you want to meet people:
+              {/* City Checkboxes */}
+              <div className="city-selection">
                 <Row className="mx-0">
                   {cities.map((city) => (
-                    <Col key={city} xs={4} className='px-0'>
-                          <input
-                            className="city-checkbox"
-                            type="checkbox"
-                            value={city}
-                            checked={selectedCities.includes(city)}
-                            onChange={() => handleCityChange(city)}
-                          />
-                          {city} 
+                    <Col key={city} xs={4} className="px-0">
+                      <input
+                        className="city-checkbox"
+                        type="checkbox"
+                        value={city}
+                        checked={selectedCities.includes(city)}
+                        onChange={() => handleCityChange(city)}
+                      />
+                      {city}
                     </Col>
                   ))}
                 </Row>
-              </label>
+              </div>
+
               {/* Display Venues */}
               <div className="row">
                 {venues.map((venue) => (
                   <Col key={venue.id} xs={6}>
-                    <Card className={`venues-card ${selectedVenues.includes(venue.id) ? "" : "venue-unselected"}`} >
+                    <Card className={`venues-card ${selectedVenues.includes(venue.id) ? "" : "venue-unselected"}`}>
                       <Card.Body>
                         <Card.Title>
                           <input
@@ -361,60 +362,41 @@ const handleUpdateProfile = async (e) => {
                   </Col>
                 ))}
               </div>
-              {/* <label className="text-start" > Select your dating venues:
-                <Row className="mx-0">
-                  {cities.map((venue) => (
-                    <Col key={venue.key} xs={4} className='px-0'>
-                          <input
-                            className="city-checkbox"
-                            type="checkbox"
-                            value={venue}
-                            checked={selectedCities.includes(venue)}
-                            onChange={() => handleCityChange(venue)}
-                          />
-                          {venue.name} 
-                    </Col>
-                  ))}
-                </Row>
-              </label> */}
-            </div>
-            {/* Password Field */}
-            <label className="text-start">
-              Password:
-              <input
-                className="w-100"
-                type="password"
-                placeholder="Enter your new password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </label>
 
-            {/* Submit and Other Action Buttons */}
-            <button type="submit" className="submit-button mb-3 w-100">
-              Save Changes
-            </button>
-            {/* <button type="button" onClick={handleDeleteAllMessages} className="delete-button mb-3">
-              Delete All Chat
-            </button>*/}
-            <button type="button" onClick={handleDeleteAccount} className="delete-button mb-3">
-              Delete Account
-            </button>
-          </form>
+              {/* Password Field */}
+              <label className="text-start">
+                Password:
+                <input
+                  className="w-100"
+                  type="password"
+                  placeholder="Enter your new password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </label>
+
+              {/* Submit and Other Action Buttons */}
+              <button type="submit" className="submit-button mb-3 w-100">
+                Save Changes
+              </button>
+              <button type="button" onClick={handleDeleteAccount} className="delete-button mb-3">
+                Delete Account
+              </button>
+            </form>
+          </div>
+
+          {/* Alert Messages */}
+          <Alert message={error} type="error" />
+          <Alert message={success} type="success" />
+
+          {/* Back to Dashboard Link */}
+          <Link to="/dashboard" className="back-to-dashboard mb-6">
+            ← Back to Dashboard
+          </Link>
         </div>
-
-        {/* Alert Messages */}
-        <Alert message={error} type="error" />
-        <Alert message={success} type="success" />
-
-        {/* Back to Dashboard Link */}
-        <Link to="/dashboard" className="back-to-dashboard mb-6">
-          ← Back to Dashboard
-        </Link>
-      </div>
-    </main>
-    <Footer />
-  </div>
+      </main>
+      <Footer />
+    </div>
   );
 };
 
