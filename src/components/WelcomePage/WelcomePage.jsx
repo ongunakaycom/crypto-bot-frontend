@@ -1,20 +1,31 @@
 import "./WelcomePage.css";
-import { Container, Row, Col, Button} from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import Footer from "../Footer/Footer";
 import CookieDisclaimer from "./CookieDisclaimer/CookieDisclaimer.jsx";
 import WelcomePageHeader from "./WelcomePageHeader/WelcomePageHeader.jsx";
 import { useTranslation } from 'react-i18next';
+import React, { useState, useEffect } from 'react'; // Fix: import useState
 
 function WelcomePage() {
-  const navigate = useNavigate();
   const { t } = useTranslation();
+  const [show, setShow] = useState(false);
 
+  useEffect(() => {
+    const cookieAccepted = localStorage.getItem('cookieAccepted');
+    if (!cookieAccepted) {
+      setShow(true);
+    }
+  }, []); 
 
-  const handleLearnMore = () => {
-    navigate("/https://t.me/CryptoTradersClub"); 
+  const handleAccept = () => {
+    localStorage.setItem('cookieAccepted', 'true');
+    setShow(false);
   };
 
+  // If cookie is already accepted, don't show the Cookie Disclaimer.
+  if (!show) {
+    return null;
+  }
 
   return (
     <div className="WelcomePage">
@@ -23,30 +34,42 @@ function WelcomePage() {
         <Container>
           <Row>
             <Col md={6} className="w-100">
-              <h1 className={`mb-4 mt-5 pt-3`} >
+              <h1 className={`mb-4 mt-5 pt-3`}>
                 {t('heading')}
               </h1>
               <p>
-              Access Real-Time Signals and Keep Ahead of Market Trends
+                {t('subheading')}
               </p>
             </Col>
           </Row>
           <Row>
             <p><img src="/img/aya-avatar.jpg" alt="Avatar" className="ayaphoto" /></p>
             <p>
-           <Button onClick={handleLearnMore}>Learn more</Button>
+              <a 
+                href="https://t.me/RobinHoodCryptoTradersClub" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                <Button>{t('learnMore')}</Button>
+              </a>
             </p>            
           </Row>
           <Row>
             <span className="small text-white mb-2">
-              <b>No</b> wait time - <b>No</b> cost<br /><b>No</b> strings attached - <b>No</b> login required
+              <b>{t('cryptoSignals')}</b>
             </span>
-            </Row>
+          </Row>
         </Container>
       </main>
-      <Footer /> 
-      <CookieDisclaimer />
+      <Footer />
+      <CookieDisclaimer 
+        message={`${t('cookieDisclaimer.messagePart1')} 
+                 <a href='/terms'>{t('cookieDisclaimer.termsLinkText')}</a>`} 
+        acceptButton={t('cookieDisclaimer.acceptButton')} 
+        handleAccept={handleAccept} 
+      />
     </div>
   );
 }
+
 export default WelcomePage;

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button, Alert } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';  
 import './CookieDisclaimer.css';
 
 function CookieDisclaimer() {
+  const { t } = useTranslation();  // Initialize translation hook
   const [show, setShow] = useState(false);
 
+  // Show cookie disclaimer if not accepted
   useEffect(() => {
     const cookieAccepted = localStorage.getItem('cookieAccepted');
     if (!cookieAccepted) {
@@ -14,11 +17,11 @@ function CookieDisclaimer() {
 
   const handleAccept = () => {
     localStorage.setItem('cookieAccepted', 'true');
-    setShow(false);
+    setShow(false); // Hide the cookie disclaimer after accepting
   };
 
   if (!show) {
-    return null;
+    return null; // If show is false, render nothing
   }
 
   return (
@@ -27,13 +30,22 @@ function CookieDisclaimer() {
         <Row className="align-items-center">
           <Col sm={8}>
             <span>
-            We use cookies to enhance your browsing experience. By using this website, you agree to our{' '}
-              <a href="/privacy-policy">Privacy Policy</a>.
+              {/* Non-clickable text */}
+              {t('cookieDisclaimer.messagePart1')}
+              {/* Clickable Terms & Conditions link */}
+              <a 
+                href="https://t.me/joinchat/TIDzW-ibEC-g-E2y" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{ textDecoration: 'underline' }}
+              >
+                {t('cookieDisclaimer.termsLinkText')}
+              </a>
             </span>
           </Col>
           <Col sm={4} className="text-md-end mt-2 mt-md-0">
             <Button className="accept-button" onClick={handleAccept}>
-                Accept
+              {t('cookieDisclaimer.acceptButton')}
             </Button>
           </Col>
         </Row>

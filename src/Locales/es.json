@@ -1,4 +1,16 @@
 {
-    "heading": "Comienza donde estás y encuentra el verdadero amor"
+  "cookieDisclaimer": {
+    "messagePart1": "Al utilizar nuestros servicios y sitio web, aceptas nuestros ",
+    "termsLinkText": "Términos y Condiciones",
+    "acceptButton": "Aceptar"
+  },
+  "heading": "Bienvenido al ChatBot de Robin Hood Crypto",
+  "subheading": "Accede a señales en tiempo real y mantente al tanto de las tendencias del mercado",
+  "learnMore": "Aprende más",
+  "cryptoSignals": "✨ Señales de Crypto | Bitcoin y Altcoins ✨ 2025",
+  "footer": {
+    "copyright": "© 2025",
+    "followUs": "Síguenos en",
+    "socialLink": "X"
   }
-  
+}

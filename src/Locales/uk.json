@@ -1,4 +1,16 @@
 {
-    "heading": "Welcome to Robin Hood Crypto ChatBot "
+  "cookieDisclaimer": {
+    "messagePart1": "By using our services and website, you agree to our ",
+    "termsLinkText": "Terms & Conditions",
+    "acceptButton": "Accept"
+  },
+  "heading": "Welcome to Robin Hood Crypto ChatBot",
+  "subheading": "Access Real-Time Signals and Keep Ahead of Market Trends",
+  "learnMore": "Learn more",
+  "cryptoSignals": "✨ Crypto Signals | Bitcoin & Altcoins ✨ 2025",
+  "footer": {
+    "copyright": "© 2025",
+    "followUs": "Follow us on",
+    "socialLink": "X"
   }
-  
+}
