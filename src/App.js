@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-// Lazy load components
+// components
 const WelcomePage = React.lazy(() => import('./components/WelcomePage/WelcomePage'));
 const Dashboard = React.lazy(() => import('./components/Dashboard/Dashboard.jsx'));
 const SignupWithEmail = React.lazy(() => import('./components/WelcomePage/Signup/Signup'));
