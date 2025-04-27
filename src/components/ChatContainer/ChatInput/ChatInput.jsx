@@ -4,39 +4,48 @@ import Alert from '../../Alert/Alert';
 import './ChatInput.css';
 import { firestore } from '../../../firebase';
 import { doc, getDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";  // Import Firebase Authentication
 
-const ChatInput = ({ inputText, setInputText, onSubmit, isSending, userId }) => {
+const ChatInput = ({ inputText, setInputText, onSubmit, isSending }) => {
   const [alertMessage, setAlertMessage] = useState('');
   const [isProAccount, setIsProAccount] = useState(false); // Default to false for safety
   const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [userId, setUserId] = useState(null);
 
-  // Fetch account status from Firestore when the component mounts
+  // Fetch the user ID and account status from Firestore
   useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (user) {
+      setUserId(user.uid);  // Get the user ID from Firebase Authentication
+    } else {
+      console.log("No user is logged in.");
+      setIsLoading(false);
+      return;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;  // If no userId, don't try fetching user data
+
+    // Fetch the user data from Firestore once userId is available
     const fetchAccountStatus = async () => {
       try {
-        if (!userId) {
-          setIsLoading(false);
-          return;
-        }
-
         const userRef = doc(firestore, 'users', userId);
         const userDoc = await getDoc(userRef);
 
         if (userDoc.exists()) {
-          const accountStatus = userDoc.data().accountStatus;
-          setIsProAccount(accountStatus === 'Pro');
+          const userData = userDoc.data();
+          const accountStatus = (userData.accountStatus || '').trim(); // Trim to handle any spaces
           
-          if (accountStatus !== 'Pro') {
-            setAlertMessage('Your account is not Pro. You need to upgrade to Pro.');
-          }
+          setIsProAccount(accountStatus.toLowerCase() === 'pro'); // Ensure case-insensitive comparison
         } else {
-          // If user document doesn't exist, treat as non-Pro
           setIsProAccount(false);
           setAlertMessage('Your account is not Pro. You need to upgrade to Pro.');
         }
       } catch (error) {
         console.error("Error fetching account status:", error);
-        // Default to non-Pro on error
         setIsProAccount(false);
         setAlertMessage('Error verifying account status. Please try again.');
       } finally {
