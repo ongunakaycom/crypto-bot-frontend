@@ -1,59 +1,59 @@
-// ✅ Define separate constants for each endpoint
-const CHATBOT_URL = "https://deep-seek-chat-bot-python.onrender.com/ask"; // For chatbot POST
-const MERGED_DATA_URL = "https://deep-seek-chat-bot-python.onrender.com/api/merged-data"; // For merged trading data GET
+// ✅ API Base
+const API_BASE = "https://deep-seek-chat-bot-python.onrender.com";
 
-// ✅ Send a message to the chatbot (POST /ask)
-export const sendMessageToChatbot = async (message) => {
+// ✅ Endpoints
+const ASK_ENDPOINT = `${API_BASE}/ask`;
+const MERGED_DATA_ENDPOINT = `${API_BASE}/api/merged-data`;
+
+// ✅ Send user message to Flask chatbot, optionally with signal data
+export const sendMessageToChatbot = async (message, signalData = null) => {
     try {
-        const response = await fetch(CHATBOT_URL, {
+        const payload = { message };
+        if (signalData) {
+            payload.signal_data = signalData;
+        }
+
+        const response = await fetch(ASK_ENDPOINT, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ message }),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
             mode: 'cors'
         });
 
         if (!response.ok) {
-            throw new Error('Failed to send message to the chatbot API');
+            throw new Error('❌ Failed to send message to the chatbot API');
         }
 
         const data = await response.json();
-        return data.response;
+        return data.response || "⚠️ No response from AI.";
     } catch (error) {
-        console.error('Chatbot Error:', error);
-        return 'Sorry, something went wrong. Please try again later.';
+        console.error('💥 Chatbot Error:', error);
+        return '❌ Something went wrong. Please try again later.';
     }
 };
 
-// ✅ Get merged trading data (GET /api/merged-data)
+// ✅ Fetch merged data from backend
 export const getMergedData = async () => {
     try {
-        const response = await fetch(MERGED_DATA_URL, {
+        const response = await fetch(MERGED_DATA_ENDPOINT, {
             method: 'GET',
             mode: 'cors'
         });
 
         if (!response.ok) {
-            throw new Error('Failed to fetch merged data');
+            throw new Error('❌ Failed to fetch merged data');
         }
 
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch (error) {
-        console.error('Merged Data Error:', error);
+        console.error('💥 Merged Data Error:', error);
         return null;
     }
 };
 
-// ✅ Example usage function
-export const AyaForUser = (userInput) => {
-    sendMessageToChatbot(userInput)
-        .then((response) => {
-            console.log("💬 AyaForUser response: ", response);
-            // Add UI update or response handling logic here
-        })
-        .catch((error) => {
-            console.error("❌ AyaForUser Error:", error);
-        });
+// ✅ Example usage function for debugging / UI integration
+export const AyaForUser = async (userInput, signalData = null) => {
+    const aiResponse = await sendMessageToChatbot(userInput, signalData);
+    console.log("💬 Aya says:", aiResponse);
+    // 🔁 TODO: Plug this into UI update logic
 };
