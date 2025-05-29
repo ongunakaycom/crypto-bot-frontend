@@ -12,5 +12,10 @@
     "copyright": "© 2025",
     "followUs": "Síguenos en",
     "socialLink": "X"
-  }
+  },
+  "alerts": {
+    "title": "Alertas",
+    "noAlerts": "Sin alertas actualmente",
+    "clearAll": "Borrar todo"
+  }    
 }

@@ -2,10 +2,71 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Dropdown, Badge } from 'react-bootstrap';
 import { AiOutlineBell } from 'react-icons/ai';
 import { ref, onValue } from 'firebase/database';
-import { database } from '../../../firebase.js'; // Correct import
+import { database } from '../../../firebase.js';
 import './HeaderAlert.css';
+import { useTranslation } from 'react-i18next';
+
 
 // === Helper Functions ===
+const extractIndicatorsFromNewSchema = (data) => {
+  if (!data?.market_data || !data?.technical_analysis) return null;
+
+  const ta = data.technical_analysis;
+  const md = data.market_data;
+
+  const price = md.price?.close;
+  const vwap = md.price?.vwap || 0;
+  const volume = md.price?.volume || 0;
+  const avgVolume = md.volume_data?.ewma || 1;
+  const volumeRatio = volume / avgVolume;
+
+  return {
+    price,
+    vwap,
+    volume,
+    avgVolume,
+    volumeRatio,
+
+    rsi: ta.indicators?.momentum?.RSI?.value,
+    macdValue: ta.indicators?.momentum?.MACD?.value,
+    macdSignal: ta.indicators?.momentum?.MACD?.signal,
+    macdCrossover: ta.indicators?.momentum?.MACD?.crossover,
+    atr: ta.indicators?.volatility?.ATR,
+    obv: ta.indicators?.volume?.OBV,
+    candlestickPattern: ta.patterns?.candlestick,
+
+    totalBidVolume: md.order_book?.metadata?.total_bid_volume,
+    totalAskVolume: md.order_book?.metadata?.total_ask_volume
+  };
+};
+
+// === Updated market analysis ===
+const analyzeMarketConditions = (indicators) => {
+  return {
+    orderBookPressure: indicators.totalBidVolume > indicators.totalAskVolume ? "Buying_Pressure" : "Selling_Pressure",
+    volumePump: indicators.volumeRatio > 1.5,
+    aboveVWAP: indicators.vwap > 0 && indicators.price > indicators.vwap,
+    validVolume: indicators.volume > 0
+  };
+};
+
+// === New helper to encapsulate trade entry condition ===
+const shouldTriggerBuySignal = (indicators, market) => {
+  const isOversold = indicators.rsi < 42;
+  const macdBullish = indicators.macdCrossover === 'bullish';
+  const hasBullishPattern = indicators.candlestickPattern?.toLowerCase().includes("bullish engulfing");
+
+  return (
+    isOversold &&
+    macdBullish &&
+    hasBullishPattern &&
+    market.orderBookPressure === "Buying_Pressure" &&
+    market.volumePump &&
+    market.aboveVWAP &&
+    market.validVolume
+  );
+};
+
 const checkTradeProgress = (tradeState, currentPrice, createAlert, resetTradeState) => {
   const { active, signalType, entryPrice, takeProfit, stopLoss } = tradeState;
   if (!active || entryPrice === null) return;
@@ -45,7 +106,8 @@ const createTradeSignal = (signalType, price, indicators, setTradeState, createA
       `Take Profit: $${takeProfit?.toFixed(2) || 'N/A'}`,
       `Stop Loss: $${stopLoss?.toFixed(2) || 'N/A'}`,
       `RSI: ${indicators.rsi?.toFixed(2) || 'N/A'}`,
-      `MACD: ${indicators.macd_value?.toFixed(2) || 'N/A'}`
+      `MACD Crossover: ${indicators.macdCrossover || 'N/A'}`,
+      `Volume Ratio: ${indicators.volumeRatio?.toFixed(4) || 'N/A'}`
     ]
   );
 };
@@ -97,47 +159,18 @@ const HeaderAlert = ({ tradeState, setTradeState }) => {
     });
   }, [setTradeState]);
 
-  const calculateIndicators = (data) => {
-    if (!data) return null;
-    return {
-      ...data.indicators,
-      macdValue: data.macd_value,
-      macdDiff: data.indicators.macd - data.indicators.macd_signal,
-      price: data.price,
-      ema21: data.ema21,
-      macdCrossover: data.macd_crossover,
-    };
-  };
-
-  const analyzeOrderBook = (market) => {
-    if (!market) return null;
-    return {
-      marketPressure: market.best_bid_quantity > market.best_ask_quantity ? "Buying_Pressure" : "Selling_Pressure",
-      whaleSide: market.current_hour_volume_buy > market.current_hour_volume_sell ? "Whale_Buying" : "Whale_Selling"
-    };
-  };
-
   const checkForTradingSignals = useCallback((data) => {
-    const indicators = calculateIndicators(data);
-    const orderBook = analyzeOrderBook(data);
-
-    if (!indicators || !orderBook) return;
+    const indicators = extractIndicatorsFromNewSchema(data);
+    if (!indicators) return;
 
     if (tradeState.active) {
       checkTradeProgress(tradeState, indicators.price, createAlert, resetTradeState);
       return;
     }
 
-    const rsiBearish = indicators.rsi < 42;
-    const macdBearish = indicators.macdDiff < -0.05;
-    const highVolatility = indicators.atr > (1.05 * (indicators.prev_atr || 0));
-    const obvBearish = indicators.obv < indicators.prev_obv;
-    const isOversold = rsiBearish && macdBearish && (highVolatility || obvBearish);
-    const isBullishEngulfing = indicators.candlestick_pattern?.includes('bullish engulfing');
+    const market = analyzeMarketConditions(indicators);
 
-    if (isOversold && isBullishEngulfing &&
-        orderBook.marketPressure === "Buying_Pressure" &&
-        orderBook.whaleSide === "Whale_Buying") {
+    if (shouldTriggerBuySignal(indicators, market)) {
       createTradeSignal('BUY', indicators.price, indicators, setTradeState, createAlert);
     }
   }, [tradeState, createAlert, resetTradeState, setTradeState]);
@@ -147,7 +180,7 @@ const HeaderAlert = ({ tradeState, setTradeState }) => {
 
     const unsubscribe = onValue(mergedRef, (snapshot) => {
       const mergedData = snapshot.val();
-      if (!mergedData || !mergedData.prediction_value || !mergedData.macd_value) return;
+      if (!mergedData) return;
 
       checkForTradingSignals(mergedData);
     }, (error) => {
@@ -157,6 +190,8 @@ const HeaderAlert = ({ tradeState, setTradeState }) => {
     return () => unsubscribe();
   }, [checkForTradingSignals]);
 
+  const { t } = useTranslation();
+  
   return (
     <Dropdown show={showAlerts} onToggle={setShowAlerts} className="me-3">
       <Dropdown.Toggle variant="transparent" className="dashboard-header-button position-relative">
@@ -171,18 +206,18 @@ const HeaderAlert = ({ tradeState, setTradeState }) => {
       <Dropdown.Menu align="end" className="p-2" style={{ width: '350px' }}>
         <div className="d-flex align-items-center mb-2">
           <div style={{ flex: 1 }}></div>
-          <h6 className="mb-0 text-center flex-grow-0">BTC Trading Alerts</h6>
+          <h6 className="mb-0 text-center flex-grow-0">{t('alerts.title')}</h6>
           <div style={{ flex: 1, textAlign: 'right' }}>
             {alerts.length > 0 && (
               <button className="btn btn-sm btn-link text-danger" onClick={clearAllAlerts}>
-                Clear All
+                {t('alerts.clearAll')}
               </button>
             )}
           </div>
         </div>
         <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
           {alerts.length === 0 ? (
-            <div className="text-center py-3 text-muted">No alerts currently</div>
+            <div className="text-center py-3 text-muted">{t('alerts.noAlerts')}</div>
           ) : (
             alerts.map(alert => (
               <div
