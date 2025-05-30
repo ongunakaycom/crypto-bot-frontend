@@ -5,7 +5,7 @@ import { ref, onValue } from 'firebase/database';
 import { database } from '../../../firebase.js';
 import './HeaderAlert.css';
 import { useTranslation } from 'react-i18next';
-
+import useTradeStore from '../../../store/useTradeStore.js';
 
 // === Helper Functions ===
 const extractIndicatorsFromNewSchema = (data) => {
@@ -14,9 +14,9 @@ const extractIndicatorsFromNewSchema = (data) => {
   const ta = data.technical_analysis;
   const md = data.market_data;
 
-  const price = md.price?.close;
-  const vwap = md.price?.vwap || 0;
-  const volume = md.price?.volume || 0;
+  const price = md.close;   
+  const vwap = md.vwap || 0;               
+  const volume = md.volume || 0;            
   const avgVolume = md.volume_data?.ewma || 1;
   const volumeRatio = volume / avgVolume;
 
@@ -39,6 +39,7 @@ const extractIndicatorsFromNewSchema = (data) => {
     totalAskVolume: md.order_book?.metadata?.total_ask_volume
   };
 };
+
 
 // === Updated market analysis ===
 const analyzeMarketConditions = (indicators) => {
@@ -113,10 +114,11 @@ const createTradeSignal = (signalType, price, indicators, setTradeState, createA
 };
 
 // === Component ===
-const HeaderAlert = ({ tradeState, setTradeState }) => {
+const HeaderAlert = () => {
   const [alerts, setAlerts] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showAlerts, setShowAlerts] = useState(false);
+  const { tradeState, setTradeState } = useTradeStore();
 
   const notifyBrowser = (title, body) => {
     if (Notification.permission === 'granted') {
@@ -176,19 +178,39 @@ const HeaderAlert = ({ tradeState, setTradeState }) => {
   }, [tradeState, createAlert, resetTradeState, setTradeState]);
 
   useEffect(() => {
-    const mergedRef = ref(database, 'trading/mergedData');
+    const mergedRef = ref(database, 'binance_data');
 
-    const unsubscribe = onValue(mergedRef, (snapshot) => {
-      const mergedData = snapshot.val();
-      if (!mergedData) return;
+    const unsubscribe = onValue(
+      mergedRef,
+      (snapshot) => {
+        const binanceData = snapshot.val();
 
-      checkForTradingSignals(mergedData);
-    }, (error) => {
-      console.error('Firebase listener error:', error);
-    });
+        if (!binanceData) {
+          console.error('No data found at path: binance_data');
+          return;
+        }
+
+        const { market_data, technical_analysis, metadata } = binanceData;
+
+        if (!market_data) console.error('Missing market_data under binance_data');
+        if (!technical_analysis) console.error('Missing technical_analysis under binance_data');
+        if (!metadata) console.warn('Missing metadata under binance_data (optional?)');
+
+        if (!market_data || !technical_analysis) {
+          console.error('Required data missing. Skipping signal check.');
+          return;
+        }
+
+        checkForTradingSignals(binanceData);
+      },
+      (error) => {
+        console.error('Error fetching data from Firebase:', error);
+      }
+    );
 
     return () => unsubscribe();
   }, [checkForTradingSignals]);
+
 
   const { t } = useTranslation();
   
@@ -245,3 +267,4 @@ const HeaderAlert = ({ tradeState, setTradeState }) => {
 };
 
 export default HeaderAlert;
+

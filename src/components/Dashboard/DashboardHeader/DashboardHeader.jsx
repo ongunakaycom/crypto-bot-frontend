@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { Dropdown } from 'react-bootstrap';
 import { AiOutlineUser, AiOutlineLogout, AiOutlineSetting } from 'react-icons/ai';
 import { BsChatLeft } from "react-icons/bs";
@@ -11,14 +10,6 @@ import './DashboardHeader.css';
 const DashboardHeader = () => {
   const navigate = useNavigate();
   const auth = getAuth();
-
-  const [tradeState, setTradeState] = useState({
-    active: false,
-    signalType: null,
-    entryPrice: null,
-    takeProfit: null,
-    stopLoss: null
-  });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -44,7 +35,8 @@ const DashboardHeader = () => {
       </div>
 
       <div className="d-flex align-items-center">
-        <HeaderAlert tradeState={tradeState} setTradeState={setTradeState} />
+       <HeaderAlert />
+
 
         <Dropdown>
           <Dropdown.Toggle variant="transparent" className="dashboard-header-button">
