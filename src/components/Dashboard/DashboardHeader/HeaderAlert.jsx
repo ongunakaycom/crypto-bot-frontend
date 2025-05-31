@@ -6,112 +6,16 @@ import { database } from '../../../firebase.js';
 import './HeaderAlert.css';
 import { useTranslation } from 'react-i18next';
 import useTradeStore from '../../../store/useTradeStore.js';
+import RealtimeData from './RealtimeData';
+import Alert from '../../Alert/Alert';
+import { checkTradeProgress, createTradeSignal } from './tradeUtils';
+import {
+  extractIndicatorsFromNewSchema,
+  analyzeMarketConditions,
+  isPriceDataFrozen,
+  shouldTriggerBuySignal
+} from './indicatorUtils';
 
-// === Helper Functions ===
-const extractIndicatorsFromNewSchema = (data) => {
-  if (!data?.market_data || !data?.technical_analysis) return null;
-
-  const ta = data.technical_analysis;
-  const md = data.market_data;
-
-  const price = md.close;   
-  const vwap = md.vwap || 0;               
-  const volume = md.volume || 0;            
-  const avgVolume = md.volume_data?.ewma || 1;
-  const volumeRatio = volume / avgVolume;
-
-  return {
-    price,
-    vwap,
-    volume,
-    avgVolume,
-    volumeRatio,
-
-    rsi: ta.indicators?.momentum?.RSI?.value,
-    macdValue: ta.indicators?.momentum?.MACD?.value,
-    macdSignal: ta.indicators?.momentum?.MACD?.signal,
-    macdCrossover: ta.indicators?.momentum?.MACD?.crossover,
-    atr: ta.indicators?.volatility?.ATR,
-    obv: ta.indicators?.volume?.OBV,
-    candlestickPattern: ta.patterns?.candlestick,
-
-    totalBidVolume: md.order_book?.metadata?.total_bid_volume,
-    totalAskVolume: md.order_book?.metadata?.total_ask_volume
-  };
-};
-
-
-// === Updated market analysis ===
-const analyzeMarketConditions = (indicators) => {
-  return {
-    orderBookPressure: indicators.totalBidVolume > indicators.totalAskVolume ? "Buying_Pressure" : "Selling_Pressure",
-    volumePump: indicators.volumeRatio > 1.5,
-    aboveVWAP: indicators.vwap > 0 && indicators.price > indicators.vwap,
-    validVolume: indicators.volume > 0
-  };
-};
-
-// === New helper to encapsulate trade entry condition ===
-const shouldTriggerBuySignal = (indicators, market) => {
-  const isOversold = indicators.rsi < 42;
-  const macdBullish = indicators.macdCrossover === 'bullish';
-  const hasBullishPattern = indicators.candlestickPattern?.toLowerCase().includes("bullish engulfing");
-
-  return (
-    isOversold &&
-    macdBullish &&
-    hasBullishPattern &&
-    market.orderBookPressure === "Buying_Pressure" &&
-    market.volumePump &&
-    market.aboveVWAP &&
-    market.validVolume
-  );
-};
-
-const checkTradeProgress = (tradeState, currentPrice, createAlert, resetTradeState) => {
-  const { active, signalType, entryPrice, takeProfit, stopLoss } = tradeState;
-  if (!active || entryPrice === null) return;
-
-  const isProfit = currentPrice >= takeProfit;
-  const isLoss = currentPrice <= stopLoss;
-
-  if (signalType === 'BUY' && (isProfit || isLoss)) {
-    const type = isProfit ? 'success' : 'danger';
-    const outcome = isProfit ? '🎯 Take Profit Reached' : '🚨 Stop Loss Triggered';
-    const value = Math.abs(currentPrice - entryPrice);
-
-    createAlert(type, outcome, currentPrice, [
-      `${signalType} Trade Closed`,
-      `Entry: $${entryPrice.toFixed(2)}`,
-      `Exit: $${currentPrice.toFixed(2)}`,
-      `${isProfit ? 'Profit' : 'Loss'}: $${value.toFixed(2)}`
-    ]);
-
-    resetTradeState();
-  }
-};
-
-const createTradeSignal = (signalType, price, indicators, setTradeState, createAlert) => {
-  const OFFSET = 1109;
-  const takeProfit = signalType === 'BUY' ? price + OFFSET : null;
-  const stopLoss = signalType === 'BUY' ? price - OFFSET : null;
-
-  setTradeState({ active: true, signalType, entryPrice: price, takeProfit, stopLoss });
-
-  createAlert(
-    signalType === 'BUY' ? 'bullish' : 'bearish',
-    `BTC ${signalType} SIGNAL`,
-    price,
-    [
-      `Entry Price: $${price.toFixed(2)}`,
-      `Take Profit: $${takeProfit?.toFixed(2) || 'N/A'}`,
-      `Stop Loss: $${stopLoss?.toFixed(2) || 'N/A'}`,
-      `RSI: ${indicators.rsi?.toFixed(2) || 'N/A'}`,
-      `MACD Crossover: ${indicators.macdCrossover || 'N/A'}`,
-      `Volume Ratio: ${indicators.volumeRatio?.toFixed(4) || 'N/A'}`
-    ]
-  );
-};
 
 // === Component ===
 const HeaderAlert = () => {
@@ -119,12 +23,6 @@ const HeaderAlert = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showAlerts, setShowAlerts] = useState(false);
   const { tradeState, setTradeState } = useTradeStore();
-
-  const notifyBrowser = (title, body) => {
-    if (Notification.permission === 'granted') {
-      new Notification(title, { body });
-    }
-  };
 
   const createAlert = useCallback((type, message, price, details) => {
     const newAlert = {
@@ -138,7 +36,6 @@ const HeaderAlert = () => {
     };
     setAlerts(prev => [newAlert, ...prev]);
     setUnreadCount(prev => prev + 1);
-    notifyBrowser(message, `Price: $${price.toFixed(2)} (${type})`);
   }, []);
 
   const markAsRead = (id) => {
@@ -162,49 +59,61 @@ const HeaderAlert = () => {
   }, [setTradeState]);
 
   const checkForTradingSignals = useCallback((data) => {
+    if (!data || typeof data !== 'object') {
+      console.warn('⚠️ Invalid data format for trading signal analysis.');
+      return;
+    }
+
     const indicators = extractIndicatorsFromNewSchema(data);
-    if (!indicators) return;
+    if (!indicators) {
+      console.warn('⚠️ Could not extract indicators.');
+      return;
+    }
+
+    if (isPriceDataFrozen(indicators.priceData)) {
+      console.warn('⚠️ Price data is frozen. Skipping...');
+      return;
+    }
+
+    const market = analyzeMarketConditions(indicators);
 
     if (tradeState.active) {
       checkTradeProgress(tradeState, indicators.price, createAlert, resetTradeState);
       return;
     }
 
-    const market = analyzeMarketConditions(indicators);
+    const isBuySignal = shouldTriggerBuySignal(indicators, market);
 
-    if (shouldTriggerBuySignal(indicators, market)) {
+    if (isBuySignal) {
       createTradeSignal('BUY', indicators.price, indicators, setTradeState, createAlert);
+    } else {
+      console.log('⚠️ Conditions not met for trade execution.');
     }
   }, [tradeState, createAlert, resetTradeState, setTradeState]);
 
+
+
+
   useEffect(() => {
-    const mergedRef = ref(database, 'binance_data');
+    const dataRef = ref(database, 'binance_data');
 
     const unsubscribe = onValue(
-      mergedRef,
+      dataRef,
       (snapshot) => {
         const binanceData = snapshot.val();
 
         if (!binanceData) {
-          console.error('No data found at path: binance_data');
+          console.error('❌ binance_data could not be fetched — snapshot is null or empty.');
           return;
         }
 
-        const { market_data, technical_analysis, metadata } = binanceData;
-
-        if (!market_data) console.error('Missing market_data under binance_data');
-        if (!technical_analysis) console.error('Missing technical_analysis under binance_data');
-        if (!metadata) console.warn('Missing metadata under binance_data (optional?)');
-
-        if (!market_data || !technical_analysis) {
-          console.error('Required data missing. Skipping signal check.');
-          return;
-        }
-
+        console.log('✅ Firebase realtimedata is fetched successfully.');
         checkForTradingSignals(binanceData);
       },
       (error) => {
-        console.error('Error fetching data from Firebase:', error);
+        console.error(
+          `❌ Failed to fetch binance_data from Firebase Realtime Database: ${error?.message || error}`
+        );
       }
     );
 
@@ -212,59 +121,58 @@ const HeaderAlert = () => {
   }, [checkForTradingSignals]);
 
 
+
   const { t } = useTranslation();
   
   return (
-    <Dropdown show={showAlerts} onToggle={setShowAlerts} className="me-3">
-      <Dropdown.Toggle variant="transparent" className="dashboard-header-button position-relative">
-        <AiOutlineBell size={24} />
-        {unreadCount > 0 && (
-          <Badge pill bg="danger" className="position-absolute top-0 start-100 translate-middle">
-            {unreadCount}
-          </Badge>
-        )}
-      </Dropdown.Toggle>
+    <>
+      <RealtimeData onData={checkForTradingSignals} />
 
-      <Dropdown.Menu align="end" className="p-2" style={{ width: '350px' }}>
-        <div className="d-flex align-items-center mb-2">
-          <div style={{ flex: 1 }}></div>
-          <h6 className="mb-0 text-center flex-grow-0">{t('alerts.title')}</h6>
-          <div style={{ flex: 1, textAlign: 'right' }}>
+      <Dropdown show={showAlerts} onToggle={setShowAlerts} className="me-3">
+        <Dropdown.Toggle variant="transparent" className="dashboard-header-button position-relative">
+          <AiOutlineBell size={24} />
+          {unreadCount > 0 && (
+            <Badge pill bg="danger" className="position-absolute top-0 start-100 translate-middle">
+              {unreadCount}
+            </Badge>
+          )}
+        </Dropdown.Toggle>
+
+        <Dropdown.Menu align="end" className="p-3 alert-dropdown" style={{ width: 350 }}>
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <h6 className="mb-0 text-center flex-grow-1">{t('alerts.title')}</h6>
             {alerts.length > 0 && (
-              <button className="btn btn-sm btn-link text-danger" onClick={clearAllAlerts}>
+              <button
+                type="button"
+                className="btn btn-sm btn-link text-danger ms-2"
+                onClick={clearAllAlerts}
+              >
                 {t('alerts.clearAll')}
               </button>
             )}
           </div>
-        </div>
-        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-          {alerts.length === 0 ? (
-            <div className="text-center py-3 text-muted">{t('alerts.noAlerts')}</div>
-          ) : (
-            alerts.map(alert => (
-              <div
-                key={alert.id}
-                className={`alert alert-${alert.type} p-2 mb-2`}
-                onClick={() => markAsRead(alert.id)}
-                style={{ cursor: 'pointer', opacity: alert.read ? 0.7 : 1 }}
-              >
-                <div className="d-flex justify-content-between">
-                  <strong>{alert.message}</strong>
-                  <small className="text-muted">{new Date(alert.timestamp).toLocaleTimeString()}</small>
-                </div>
-                <div className="mt-1">
-                  {alert.details.map((d, i) => (
-                    <div key={i} className="small">{d}</div>
-                  ))}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </Dropdown.Menu>
-    </Dropdown>
+
+          <div className="alert-list">
+            {alerts.length === 0 ? (
+              <div className="text-center py-3 text-muted">{t('alerts.noAlerts')}</div>
+            ) : (
+              alerts.map((alert) => (
+                <Alert
+                  key={alert.id}
+                  type={alert.type}
+                  message={alert.message}
+                  details={alert.details}
+                  timestamp={alert.timestamp}
+                  read={alert.read}
+                  onClick={() => markAsRead(alert.id)}
+                />
+              ))
+            )}
+          </div>
+        </Dropdown.Menu>
+      </Dropdown>
+    </>
   );
 };
 
 export default HeaderAlert;
-
