@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Dropdown, Badge } from 'react-bootstrap';
 import { AiOutlineBell } from 'react-icons/ai';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +10,6 @@ import Alert from '../../Alert/Alert';
 
 import { detectSoftSignals } from './softSignalUtils';
 import { extractIndicatorsFromNewSchema } from './indicatorUtils';
-
 import {
   checkTradeProgress,
   createTradeSignal,
@@ -23,13 +22,12 @@ const HeaderAlert = () => {
   const [alerts, setAlerts] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showAlerts, setShowAlerts] = useState(false);
-  const [currentPrice, setCurrentPrice] = useState(null);
-  const [marketCondition, setMarketCondition] = useState(null);
-
-  
 
   const { tradeState, setTradeState } = useTradeStore();
   const { t } = useTranslation();
+
+  const currentPriceRef = useRef(null);  // To track current price in UI
+  const marketConditionRef = useRef(null); // For UI label
 
   const createAlert = useCallback((type, message, price, details) => {
     const timestamp = new Date().toISOString();
@@ -77,51 +75,33 @@ const HeaderAlert = () => {
     });
   }, [setTradeState]);
 
-  const checkForTradingSignals = useCallback((data) => {
-    if (!data || !data.priceData || !data.technical_analysis || !data.order_book || !data.quantum || !data.coinbase || data.priceData.close == null) {
-      return;
-    }
 
-    const indicators = extractIndicatorsFromNewSchema(data);
-    const market = analyzeMarketConditions(indicators);
-    setMarketCondition(market?.marketPressure || 'unknown');
-    const price = indicators.price;
-    setCurrentPrice(price);
+ const checkForTradingSignals = useCallback((data) => {
+  if (!data || !data.priceData || !data.technical_analysis || !data.order_book || !data.quantum || !data.coinbase || data.priceData.close == null) {
+    return;
+  }
 
-    if (tradeState.active) {
-      checkTradeProgress(tradeState, price, createAlert, resetTradeState);
-    }
+  const indicators = extractIndicatorsFromNewSchema(data);
+  const market = analyzeMarketConditions(indicators);
+  const price = indicators.price;
+  const quantum = data.quantum;
 
-    if (!tradeState.active && shouldTriggerBuySignal(indicators, market)) {
-      createTradeSignal('BUY', price, indicators, setTradeState, createAlert);
-      return;
-    }
+  currentPriceRef.current = price;
+  marketConditionRef.current = market?.marketPressure || 'unknown';
 
-    const quantum = data.quantum;
-    const coinbase = data.coinbase;
-    const rsi = quantum?.indicators?.rsi || 0;
-    const macd = quantum?.indicators?.macdCrossover;
-    const momentum = quantum?.indicators?.momentum;
-    
+  if (tradeState.active) {
+    checkTradeProgress(tradeState, price, createAlert, resetTradeState);
+  }
 
-    if (tradeState.signalType !== 'SELL' && macd === 'bullish' && rsi > 50 && momentum === 'rising') {
-      createAlert('soft-uptrend', '📈 Possible uptrend forming (early signal)', price, [
-        `Price: ${price.toFixed(2)} USDT`,
-        `RSI: ${rsi.toFixed(2)}`,
-        `MACD: ${macd}`,
-        `Momentum: ${momentum}`,
-        `Spread: ${coinbase?.spread ?? 'N/A'}`,
-        `Volume Ratio: ${indicators.volumeRatio?.toFixed(4) ?? 'N/A'}`,
-        `Market Pressure: ${market.marketPressure}`,
-      ]);
-      return;
-    }
+  if (!tradeState.active && shouldTriggerBuySignal(indicators, market)) {
+    createTradeSignal('OversoldBuy', price, indicators, setTradeState, createAlert);
+    return;
+  }
 
-    const softSignalResult = detectSoftSignals(indicators, market);
-    handleSoftSignalAlert(softSignalResult, indicators, price, createAlert, tradeState);
-
-    // Removed explicit creation of neutral alert
-  }, [tradeState, createAlert, resetTradeState, setTradeState]);
+  // Updated: Handle multiple signals
+  const softSignalResults = detectSoftSignals(indicators, market, quantum);
+  handleSoftSignalAlert(softSignalResults, indicators, price, createAlert, tradeState);
+}, [tradeState, createAlert, resetTradeState, setTradeState]);
 
   return (
     <>
@@ -148,11 +128,11 @@ const HeaderAlert = () => {
           </div>
 
           <div className="alert-list">
-           {alerts.length === 0 ? (
+            {alerts.length === 0 ? (
               <div className="text-center py-3 text-muted">
-                {currentPrice !== null ? `Price: ${currentPrice.toFixed(2)} USDT` : 'Fetching price...'}
+                {currentPriceRef.current != null ? `Price: ${currentPriceRef.current.toFixed(2)} USDT` : 'Fetching price...'}
                 <br />
-                {marketCondition && `${t('alerts.marketCondition')}: ${marketCondition.charAt(0).toUpperCase() + marketCondition.slice(1)}`}
+                {marketConditionRef.current && `${t('alerts.marketCondition')}: ${marketConditionRef.current.charAt(0).toUpperCase() + marketConditionRef.current.slice(1)}`}
                 <br />
                 {t('alerts.noAlerts')}
               </div>

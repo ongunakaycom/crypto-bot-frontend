@@ -1,18 +1,47 @@
-export const handleSoftSignalAlert = (softSignalResult, indicators, price, createAlert, tradeState) => {
-  if (!softSignalResult || !softSignalResult.type) return;
+export const handleSoftSignalAlert = (softSignalResults, indicators, price, createAlert, tradeState) => {
+  if (!Array.isArray(softSignalResults) || softSignalResults.length === 0) return;
 
-  if (softSignalResult.type === 'soft-downtrend' && tradeState.signalType !== 'SELL') {
-    createAlert('info', '📉 Possible downtrend forming (early signal)', price, [
-      `Price: $${price.toFixed(2)}`,
-      `Condition: Price is below Bollinger Lower Band: ${softSignalResult.details.priceBelowLowerBand ? 'Yes' : 'No'}`,
-      `Trend Summary: ${indicators.trendSummary || 'N/A'}`,
-      `Market Pressure: ${softSignalResult.details.marketPressure}`,
-      `ATR: ${softSignalResult.details.atr}`,
-    ]);
+  for (const result of softSignalResults) {
+    const { type, details } = result;
+
+    switch (type) {
+      case 'soft-downtrend':
+        if (tradeState.signalType !== 'SELL') {
+          createAlert('info', '📉 Possible downtrend forming (early signal)', price, [
+            `Price: $${price.toFixed(2)}`,
+            `Price < Bollinger Band: ${details.priceBelowLowerBand ? 'Yes' : 'No'}`,
+            `Trend: ${indicators.trendSummary || 'N/A'}`,
+            `Market Pressure: ${details.marketPressure}`,
+            `ATR: ${details.atr}`,
+          ]);
+        }
+        break;
+
+      case 'quantum-anomaly':
+        createAlert('warning', '🧠 Quantum Anomaly Detected', price, [
+          `Predicted: $${details.predicted}`,
+          `Actual: $${details.actual}`,
+          `Deviation: $${details.delta} (${details.deltaPercent})`,
+          `Confidence: ${details.confidence}`,
+          `Market Regime: ${details.regime}`,
+        ]);
+        break;
+
+      case 'neutral':
+        createAlert('neutral', '⚖️ Market Appears Neutral', price, [
+          `Trend: ${details.trend}`,
+          `Pressure: ${details.marketPressure}`,
+          `Volume: ${details.volume}`,
+          `Reason: ${details.reason}`,
+        ]);
+        break;
+
+      default:
+        console.warn('Unhandled soft signal type:', type);
+        break;
+    }
   }
-
 };
-
 
 export const checkTradeProgress = (tradeState, currentPrice, createAlert, resetTradeState) => {
   const { active, signalType, entryPrice, takeProfit, stopLoss } = tradeState;
@@ -76,20 +105,21 @@ export const analyzeMarketConditions = (indicators) => {
   };
 };
 
-// Placeholder function - implement actual buy signal logic
 export const shouldTriggerBuySignal = (indicators, market) => {
-  // Determine if conditions are met to trigger a *strong* BUY signal
-  // based on the extracted indicators and the market analysis.
-  // This logic should be comprehensive and specific to your strategy.
-  // Example placeholder logic (highly simplified):
-  const isRSIBullish = (indicators?.RSI ?? 0) > 55;
-  const isMACDBullishCrossover = indicators?.MACD?.crossover === 'bullish';
-  const isUptrend = indicators?.trendSummary === 'Uptrend';
-  const isBuyingPressure = market?.marketPressure === 'Buying';
-  const hasVolumeConfirmation = (indicators?.volumeRatio ?? 0) > 1.2; // Example: volume higher than avg
+  const isOversoldTrend = indicators?.trend === 'Oversold';
+  const isBullishEngulfing = indicators?.candlestickPattern === 'bullish_engulfing';
+  const whaleThreshold = 50000;
+  const hasWhaleBuy = indicators?.bids?.some(bid => bid[1] >= whaleThreshold);
 
-  // This is a very basic placeholder example; replace with your actual signal logic
-  const trigger = isRSIBullish && isMACDBullishCrossover && isUptrend && isBuyingPressure && hasVolumeConfirmation;
+  const shouldBuy = isOversoldTrend && isBullishEngulfing && hasWhaleBuy;
 
-  return trigger;
+  if (!shouldBuy) {
+    console.log('Buy Signal Skipped:', {
+      isOversoldTrend,
+      isBullishEngulfing,
+      hasWhaleBuy,
+    });
+  }
+
+  return shouldBuy;
 };
