@@ -1,10 +1,9 @@
-// ProtectedRoute.jsx
 import React, { useEffect, useState } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
 import { Navigate } from 'react-router-dom';
-import { auth } from '../../../firebase.js'; 
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../../../firebase.js';
 
-const ProtectedRoute = ({ element: Component }) => {
+const ProtectedRoute = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
@@ -28,11 +27,11 @@ const ProtectedRoute = ({ element: Component }) => {
   }
 
   if (isAuthenticated && isEmailVerified) {
-    return <Component />;
+    return children; // ✅ render passed children directly
   } else if (isAuthenticated && !isEmailVerified) {
-    return <Navigate to="/verification" />;
+    return <Navigate to="/verification" replace />;
   } else {
-    return <Navigate to="/signin" />;
+    return <Navigate to="/signin" replace />;
   }
 };
 

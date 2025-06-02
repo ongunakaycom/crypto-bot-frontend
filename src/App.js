@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-// components
+// Lazy-loaded components
 const WelcomePage = React.lazy(() => import('./components/WelcomePage/WelcomePage'));
 const Dashboard = React.lazy(() => import('./components/Dashboard/Dashboard.jsx'));
 const SignupWithEmail = React.lazy(() => import('./components/WelcomePage/Signup/Signup'));
@@ -17,15 +17,28 @@ function App() {
   return (
     <Router>
       <div className="App">
-        {/* Suspense component provides fallback loading UI while the component is being loaded */}
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="text-center mt-5">Loading, please wait...</div>}>
           <Routes>
             <Route path="/" element={<WelcomePage />} />
-            <Route path="/dashboard" element={<ProtectedRoute element={Dashboard} />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/signup" element={<SignupWithEmail />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/password-retrieve" element={<PasswordRetrieve />} />
-            <Route path="/account-settings" element={<AccountSettings />} />
+            <Route
+              path="/account-settings"
+              element={
+                <ProtectedRoute>
+                  <AccountSettings />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/verification" element={<VerificationPage />} />
           </Routes>
         </Suspense>
