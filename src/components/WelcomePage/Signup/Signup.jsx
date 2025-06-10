@@ -120,8 +120,6 @@ const SignUpComponent = () => {
         displayName: username,
         email: email,
         photoURL: defaultAvatar,
-        datingLocations: ["World"],
-        datingVenues: ["Wonline"],
         createdAt: new Date(),
       });
 

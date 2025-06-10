@@ -39,8 +39,6 @@ const Dashboard = () => {
             email: user.email || '',
             photoURL: newAvatar,
             accountStatus: 'Free',
-            datingLocations: ['World'],
-            datingVenues: ['Wonline'],
             createdAt: new Date(),
           });
 
