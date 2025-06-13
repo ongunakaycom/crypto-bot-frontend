@@ -155,12 +155,6 @@ const AccountSettings = () => {
     }
   };
 
-// Handle Upgrade to Pro (UPDATED)
-const handleUpgradeToPro = () => {
-  window.open("https://nowpayments.io/payment/?iid=4937355411", "_blank");
-};
-
-
   return (
     <div className="AyaFormPage">
       <DashboardHeader />
@@ -211,16 +205,6 @@ const handleUpgradeToPro = () => {
 
               {/* Full Width Section (Upgrade, Email, Account Status, Change Password) */}
               <div className="full-width-section mt-4">
-                {accountStatus !== 'Pro' && (
-                  <button
-                    type="button"
-                    onClick={handleUpgradeToPro}
-                    className="delete-button w-100 mb-3"
-                  >
-                    Upgrade to Pro
-                  </button>
-                )}
-
                 <div className="info-fields w-100">
                   {/* Styled Email Display */}
                   <div className="form-group mt-3">

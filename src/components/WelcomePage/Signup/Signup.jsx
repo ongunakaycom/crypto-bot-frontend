@@ -108,9 +108,10 @@ const SignUpComponent = () => {
       // Save user details directly into the main database
       const userRef = ref(database, "users/" + user.uid); // Save directly to "users"
       await set(userRef, {
-        email: email,
-        username: username,
-        verified: false,
+          email: user.email,
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+          accountStatus: "Regular"
       });
 
       const firestore = getFirestore();
