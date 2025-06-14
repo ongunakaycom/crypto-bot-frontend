@@ -16,6 +16,7 @@ const ChatInput = ({ inputText, setInputText, onSubmit, isSending }) => {
     }
 
     onSubmit(event);
+    setInputText(''); // Clear input right after sending
   };
 
   return (
@@ -27,9 +28,9 @@ const ChatInput = ({ inputText, setInputText, onSubmit, isSending }) => {
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder={isSending ? "Robin Hood typing..." : "Type here..."}
+          placeholder={isSending ? "Robin Hood thinking..." : "Type here..."}
           className="chat-text-input"
-          disabled={isSending}
+          readOnly={isSending}
         />
         <button 
           type="submit" 

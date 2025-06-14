@@ -10,6 +10,16 @@ import Alert from '../../Alert/Alert';
 import useAccountStore from '../../../store/accountStore';  // Zustand store
 import useTradeStore from '../../../store/tradeStore';
 
+const marketCoinsMap = {
+  coinbase: [
+    { value: 'btcusd', label: 'BTC/USD' },
+    { value: 'ethusd', label: 'ETH/USD' },
+  ],
+  binance: [
+    { value: 'btcusdt', label: 'BTC/USDT' },
+    { value: 'ethusdt', label: 'ETH/USDT' },
+  ],
+};
 
 const AccountSettings = () => {
   const [username, setUsername] = useState('');
@@ -66,6 +76,18 @@ const AccountSettings = () => {
 
     return () => unsubscribe();
   }, [auth, firestore, setAccountStatus, setPreferredMarket, setPreferredCoin]);
+
+  // Reset preferredCoin if no longer valid for selected preferredMarket
+  useEffect(() => {
+    if (!preferredMarket) {
+      setPreferredCoin('');
+      return;
+    }
+    const validCoins = marketCoinsMap[preferredMarket]?.map(c => c.value) || [];
+    if (!validCoins.includes(preferredCoin)) {
+      setPreferredCoin('');
+    }
+  }, [preferredMarket, preferredCoin, setPreferredCoin]);
 
   const handleProfilePictureChange = (e) => {
     const file = e.target.files?.[0];
@@ -214,13 +236,14 @@ const AccountSettings = () => {
 
                   <Form.Group className="mt-3">
                     <Form.Label>Preferred Market:</Form.Label>
-                    <Form.Select
-                      value={preferredMarket}
-                      onChange={(e) => setPreferredMarket(e.target.value)}
-                    >
-                      <option value="">Select a market</option>
-                      <option value="Coinbase">Coinbase</option>
-                    </Form.Select>
+                      <Form.Select
+                        value={preferredMarket}
+                        onChange={(e) => setPreferredMarket(e.target.value)}
+                      >
+                        <option value="">Select a market</option>
+                        <option value="coinbase">Coinbase</option>
+                        <option value="binance" disabled title="Coming Soon">Binance (Coming Soon)</option>
+                      </Form.Select>
                   </Form.Group>
 
                   <Form.Group className="mt-3">
@@ -230,8 +253,11 @@ const AccountSettings = () => {
                       onChange={(e) => setPreferredCoin(e.target.value)}
                     >
                       <option value="">Select a coin</option>
-                      <option value="BTC">BTC</option>
-                      <option value="ETH">ETH</option>
+                      {(marketCoinsMap[preferredMarket] || []).map((coin) => (
+                        <option key={coin.value} value={coin.value}>
+                          {coin.label}
+                        </option>
+                      ))}
                     </Form.Select>
                   </Form.Group>
                 </Col>
