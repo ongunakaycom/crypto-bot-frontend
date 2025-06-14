@@ -4,11 +4,15 @@ import { getAuth, signOut, onAuthStateChanged } from 'firebase/auth';
 import { Dropdown } from 'react-bootstrap';
 import { AiOutlineUser, AiOutlineLogout, AiOutlineSetting } from 'react-icons/ai';
 import { BsChatLeft } from 'react-icons/bs';
+import useTradeStore from '../../../store/tradeStore'; // ✅ Import store
 import './DashboardHeader.css';
 
 const DashboardHeader = () => {
   const navigate = useNavigate();
   const auth = getAuth();
+
+  // ✅ Zustand store values
+  const { preferredMarket, preferredCoin } = useTradeStore();
 
   // Redirect to home if user is not authenticated
   useEffect(() => {
@@ -41,6 +45,11 @@ const DashboardHeader = () => {
           className="DashboardLogo"
           onError={(e) => { e.target.style.display = 'none'; }}
         />
+      </div>
+
+      <div className="ms-3 me-auto text-white small d-none d-md-block">
+        {/* ✅ User settings info */}
+        <span>Your trading preferences: <strong>{preferredMarket}</strong> market, <strong>{preferredCoin.toUpperCase()}</strong> pair</span>
       </div>
 
       <div className="d-flex align-items-center">

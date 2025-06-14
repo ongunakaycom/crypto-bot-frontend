@@ -37,3 +37,10 @@
 .dashboard-header-button:active {
     background-color: transparent;  /* Custom background for hover or active */
 }
+
+
+
+.dashboard-header .text-muted {
+  font-size: 0.875rem;
+  margin-left: 1rem;
+}
