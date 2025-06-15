@@ -1,37 +1,47 @@
 import React from 'react';
 import './Footer.css';
-import { FaInstagram, FaTelegram, FaYoutube, FaFacebook } from 'react-icons/fa'; // Added FaFacebook
+import {
+  FaInstagram,
+  FaTelegram,
+  FaYoutube,
+  FaFacebook
+} from 'react-icons/fa';
 
-const XLogo = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    style={{ margin: '0 10px', color: '#fff' }}
-    className="x-logo"
-  >
-    <path d="M4 4l16 16M4 20L20 4" />
-  </svg>
+
+
+// Twitter (X) logo (from public folder)
+const TwitterXLogo = () => (
+  <img
+    src="/img/twitter-x-seeklogo-2.svg"
+    alt="Twitter X"
+    width="40"
+    height="40"
+  />
+);
+
+// TradingView logo (from public folder)
+const TradingViewLogo = () => (
+  <img
+    src="/img/white-short-logo.svg"
+    alt="TradingView"
+    width="40"
+    height="40"
+  />
 );
 
 const Footer = () => {
   return (
     <footer className="dashboard-footer">
       <div className="footerCopy text-center">
-        {/* X (Twitter) */}
+
+        {/* Twitter (X) */}
         <a
           href="https://x.com/crypto_public"
           target="_blank"
           rel="noopener noreferrer"
           className="social-link"
         >
-          <XLogo />
+          <TwitterXLogo />
         </a>
 
         {/* Instagram */}
@@ -41,7 +51,7 @@ const Footer = () => {
           rel="noopener noreferrer"
           className="social-link"
         >
-          <FaInstagram size={24} style={{ margin: '0 10px', color: '#E4405F' }} />
+          <FaInstagram size={24} style={{ color: '#E4405F' }} />
         </a>
 
         {/* Telegram */}
@@ -51,7 +61,7 @@ const Footer = () => {
           rel="noopener noreferrer"
           className="social-link"
         >
-          <FaTelegram size={24} style={{ margin: '0 10px', color: '#0088cc' }} />
+          <FaTelegram size={24} style={{ color: '#0088cc' }} />
         </a>
 
         {/* YouTube */}
@@ -61,7 +71,7 @@ const Footer = () => {
           rel="noopener noreferrer"
           className="social-link"
         >
-          <FaYoutube size={24} style={{ margin: '0 10px', color: '#FF0000' }} />
+          <FaYoutube size={24} style={{ color: '#FF0000' }} />
         </a>
 
         {/* Facebook */}
@@ -71,8 +81,19 @@ const Footer = () => {
           rel="noopener noreferrer"
           className="social-link"
         >
-          <FaFacebook size={24} style={{ margin: '0 10px', color: '#1877F2' }} />
+          <FaFacebook size={24} style={{ color: '#1877F2' }} />
         </a>
+
+        {/* TradingView */}
+        <a
+          href="https://www.tradingview.com/u/CryptoSignalsChannel/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="social-link"
+        >
+          <TradingViewLogo />
+        </a>
+
       </div>
     </footer>
   );

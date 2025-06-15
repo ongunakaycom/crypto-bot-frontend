@@ -11,7 +11,7 @@
 .footerCopy {
     display: flex;
     justify-content: center;  /* Aligns items horizontally at the center */
-    gap: 10px;  /* Adds spacing between the icons */
+    gap: 24px;  /* Adds spacing between the icons */
     align-items: center;  /* Vertically aligns items in the middle */
     font-size: 0.9rem;
   }
