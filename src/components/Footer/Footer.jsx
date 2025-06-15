@@ -1,6 +1,6 @@
 import React from 'react';
 import './Footer.css';
-import { FaInstagram, FaTelegram, FaYoutube } from 'react-icons/fa'; // Added FaYoutube
+import { FaInstagram, FaTelegram, FaYoutube, FaFacebook } from 'react-icons/fa'; // Added FaFacebook
 
 const XLogo = () => (
   <svg
@@ -62,6 +62,16 @@ const Footer = () => {
           className="social-link"
         >
           <FaYoutube size={24} style={{ margin: '0 10px', color: '#FF0000' }} />
+        </a>
+
+        {/* Facebook */}
+        <a
+          href="https://www.facebook.com/cryptotradersclubsocial"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="social-link"
+        >
+          <FaFacebook size={24} style={{ margin: '0 10px', color: '#1877F2' }} />
         </a>
       </div>
     </footer>
