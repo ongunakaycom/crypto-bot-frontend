@@ -41,16 +41,43 @@ export const sendMessageToChatbot = async (message, market = 'coinbase', coin = 
       return data.data.analysis.error;
     }
 
+    // Try different response formats
     if (data.data?.analysis?.raw_response) {
       return data.data.analysis.raw_response;
     }
 
+    // Check if analysis object exists and format it
+    if (data.data?.analysis) {
+      const analysis = data.data.analysis;
+      return `📊 **BTC Analysis**
+
+    🎯 **Signal:** ${analysis.signal_direction || 'N/A'}
+    📈 **Current Price:** $${analysis.current_price?.toLocaleString() || 'N/A'}
+    📊 **Price Change:** ${analysis.price_change || 'N/A'}%
+    🔥 **Confidence:** ${analysis.confidence_level || 'N/A'}%
+    📋 **Summary:** ${analysis.technical_summary || 'N/A'}
+    🚀 **Next Move:** ${analysis.probable_next_move || 'N/A'}
+    ⚡ **Momentum:** ${analysis.momentum_status || 'N/A'}`;
+    }
+
+    // Fallback to signals data if analysis is missing
+    if (data.data?.signals) {
+      const signals = data.data.signals;
+      return `📊 **BTC Technical Data**
+
+    💰 **Current Price:** $${signals.current_price?.toLocaleString() || 'N/A'}
+    📈 **Change:** ${signals.price_change_percent?.toFixed(2) || 'N/A'}%
+    🎯 **Signal:** ${signals.mathematical_signal || 'N/A'}
+    📊 **Confidence:** ${signals.signal_confidence?.toFixed(1) || 'N/A'}%
+    📋 **Pattern:** ${signals.synthetic_pattern || 'N/A'}`;
+    }
+
     return "⚠️ No analysis response from server.";
-  } catch (error) {
-    console.error('sendMessageToChatbot catch error:', error);
-    return `Sorry, something went wrong. Please try again later.\nDetails: ${error.message}`;
-  }
-};
+      } catch (error) {
+        console.error('sendMessageToChatbot catch error:', error);
+        return `Sorry, something went wrong. Please try again later.\nDetails: ${error.message}`;
+      }
+    };
 
 // For debug/testing
 export const AyaForUser = (userInput) => {
