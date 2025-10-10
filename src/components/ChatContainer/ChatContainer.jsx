@@ -12,7 +12,28 @@ const ChatContainer = ({ userMessagesRef, displayName, userAvatar, error, setErr
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const { preferredMarket = 'coinbase', preferredCoin = 'btcusd' } = useTradeStore();
+  const tradeStore = useTradeStore();
+  const { preferredMarket = 'coinbase', preferredCoin = 'btcusd' } = tradeStore;
+
+  // Debug the entire store to see what's available
+  useEffect(() => {
+    console.log('🔍 Full tradeStore contents:', tradeStore);
+    console.log('🔍 Trading pair configuration:', {
+      market: preferredMarket,
+      coin: preferredCoin,
+      fullPair: `${preferredMarket}/${preferredCoin}`
+    });
+  }, [tradeStore, preferredMarket, preferredCoin]); 
+
+
+  // Debug effect using Zustand store
+  useEffect(() => {
+    console.log('🔍 Current trading configuration from Zustand:', {
+      preferredMarket,
+      preferredCoin,
+      // Add any other relevant store values you want to debug
+    });
+  }, [preferredMarket, preferredCoin]);
 
   const addMessage = useCallback(async (sender, text) => {
     if (!userMessagesRef) return;
@@ -44,14 +65,43 @@ const ChatContainer = ({ userMessagesRef, displayName, userAvatar, error, setErr
     if (!inputText.trim()) return;
 
     setIsSending(true);
+    setError(''); // Clear previous errors
+    
     try {
       await addMessage('user', inputText);
+      console.log('🔄 Calling chatbot with:', inputText, 'for', preferredMarket, preferredCoin);
+      
       const responseText = await sendMessageToChatbot(inputText, preferredMarket, preferredCoin);
-      await addMessage('bot', responseText);
+      console.log('✅ Chatbot response:', responseText);
+      
+      // Check if the response is an error message (starts with error indicators)
+      if (responseText.includes('❌') || 
+          responseText.includes('⚠️') || 
+          responseText.includes('🌐') ||
+          responseText.includes('⏰') ||
+          responseText.includes('🛡️') ||
+          responseText.toLowerCase().includes('unable to connect') ||
+          responseText.toLowerCase().includes('service error') ||
+          responseText.toLowerCase().includes('network connection')) {
+        
+        console.warn('⚠️ Chatbot returned error message:', responseText);
+        // Still add the message but show error state
+        await addMessage('bot', responseText);
+        setError(responseText); // Show error in UI if needed
+      } else {
+        // Normal successful response
+        await addMessage('bot', responseText);
+      }
+      
       setInputText('');
     } catch (err) {
-      console.error('Submit error:', err);
-      setError('Something went wrong when sending your message.');
+      console.error('💥 Submit error:', err);
+      // Only set generic error if we didn't already handle it
+      if (!error) {
+        setError('Failed to send message. Please check your connection and try again.');
+      }
+      // Add a generic error message to chat
+      await addMessage('bot', '❌ Sorry, I encountered an error processing your request. Please try again.');
     } finally {
       setIsSending(false);
     }
