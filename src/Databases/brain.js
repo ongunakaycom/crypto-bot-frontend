@@ -81,67 +81,24 @@ export const sendMessageToChatbot = async (message, market = 'coinbase', coin = 
       return `❌ Analysis error: ${data.data.analysis.error}`;
     }
 
-    // Check for raw_response first (if backend provides formatted text)
-    if (data.data?.analysis?.raw_response) {
-      return data.data.analysis.raw_response;
-    }
-    if (data.analysis?.raw_response) {
-      return data.analysis.raw_response;
-    }
+if (data.data?.ai_analysis && data.data?.metrics) {
+  const m = data.data.metrics;
 
-    // If we have trading data but no raw_response, format it ourselves
-    if (data.data?.analysis && data.data?.signals) {
-      const analysis = data.data.analysis;
-      const signals = data.data.signals;
-      
-      // Format the trading analysis inline
-      let message = `📊 **BTC/USD Trading Analysis**\n\n`;
-      
-      // Price and basic info
-      message += `💰 **Current Price**: $${analysis.current_price?.toLocaleString() || 'N/A'}\n`;
-      message += `📈 **Price Change**: ${analysis.price_change?.toFixed(2)}%\n`;
-      message += `🎯 **Signal Direction**: ${analysis.signal_direction || signals.mathematical_signal}\n\n`;
-      
-      // Confidence and momentum
-      message += `📊 **Confidence Level**: ${analysis.confidence_level?.toFixed(1)}%\n`;
-      message += `⚡ **Momentum**: ${analysis.momentum_status?.toUpperCase()}\n`;
-      message += `📉 **Recent Trend**: ${signals.recent_trend}\n\n`;
-      
-      // Technical indicators
-      message += `🔧 **Technical Summary**: ${analysis.technical_summary}\n`;
-      message += `🔄 **Market Pattern**: ${signals.synthetic_pattern}\n\n`;
-      
-      // Detailed indicators
-      if (signals.indicators) {
-        message += `**Key Indicators:**\n`;
-        message += `• RSI: ${signals.indicators.rsi?.toFixed(1)} (${signals.indicators.rsi > 70 ? 'Overbought' : signals.indicators.rsi < 30 ? 'Oversold' : 'Neutral'})\n`;
-        message += `• Support: $${signals.indicators.support_level?.toLocaleString()}\n`;
-        message += `• Resistance: $${signals.indicators.resistance_level?.toLocaleString()}\n`;
-        message += `• Buy/Sell Ratio: ${(signals.indicators.buy_sell_ratio * 100)?.toFixed(1)}%\n`;
-      }
-      
-      // Trading advice based on signals
-      message += `\n**Trading Advice:**\n`;
-      if (analysis.signal_direction === 'DOWN' || signals.mathematical_signal === 'DOWN') {
-        message += `Consider waiting for better entry points or setting limit orders below current price.`;
-      } else if (analysis.signal_direction === 'UP' || signals.mathematical_signal === 'UP') {
-        message += `Potential buying opportunity, but monitor key resistance levels.`;
-      } else {
-        message += `Market is consolidating. Consider range-bound trading strategies.`;
-      }
-      
-      message += `\n\n*Always use proper risk management and consider multiple timeframes.*`;
-      
-      return message;
-    }
+  let message = `📊 **BTC/USD Market Update**\n\n`;
+  message += `💰 **Price**: $${m.price?.toLocaleString()}\n`;
+  message += `📈 **RSI**: ${m.rsi}\n`;
+  message += `📉 **Trend**: ${m.trend.toUpperCase()}\n`;
+  message += `🎯 **Signal**: ${m.signal}\n\n`;
+  message += `🧠 **AI Insight**: ${data.data.ai_analysis}\n\n`;
+  message += `*This is an automated technical analysis. Always manage risk.*`;
 
-    if (data.message) {
-      return data.message;
-    }
+  return message;
+}
 
-    if (data.data || data.analysis) {
-      return "📊 Market analysis completed. Review the current market conditions and consider your risk tolerance before trading.";
-    }
+
+if (data.message) {
+  return data.message;
+}
 
     return "⚠️ Trading analysis service responded but no specific advice was generated. Please try rephrasing your question.";
 
