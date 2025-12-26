@@ -40,3 +40,6 @@ project-tree.txt
 # Firebase config files
 /firebase.js
 /src/firebase.js
+*.cache
+/.firebase
+.firebase/hosting.YnVpbGQ.cache
