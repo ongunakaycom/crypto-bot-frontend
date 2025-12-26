@@ -1,5 +1,5 @@
 import "./WelcomePage.css";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import Footer from "../Footer/Footer";
 import CookieDisclaimer from "./CookieDisclaimer/CookieDisclaimer.jsx";
 import WelcomePageHeader from "./WelcomePageHeader/WelcomePageHeader.jsx";
@@ -43,16 +43,7 @@ function WelcomePage() {
             </Col>
           </Row>
           <Row>
-            <p><img src="/img/aya-avatar.jpg" alt="Avatar" className="ayaphoto" /></p>
-            <p>
-              <a 
-                href="https://t.me/BitcoinSignalsChannel" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                <Button>{t('learnMore')}</Button>
-              </a>
-            </p>            
+            <p><img src="/img/aya-avatar.jpg" alt="Avatar" className="ayaphoto" /></p>         
           </Row>
           <Row>
             <span className="small text-white mb-2">

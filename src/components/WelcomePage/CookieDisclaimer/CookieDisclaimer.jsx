@@ -22,17 +22,10 @@ function CookieDisclaimer() {
         <Row className="align-items-center">
           <Col sm={8}>
             <span>
-              {/* Non-clickable text */}
               {t('cookieDisclaimer.messagePart1')}
-              {/* Clickable Terms & Conditions link */}
-              <a 
-                href="https://t.me/joinchat/TIDzW-ibEC-g-E2y" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                style={{ textDecoration: 'underline' }}
-              >
+              <span style={{ textDecoration: 'underline' }}>
                 {t('cookieDisclaimer.termsLinkText')}
-              </a>
+              </span>
             </span>
           </Col>
           <Col sm={4} className="text-md-end mt-2 mt-md-0">
