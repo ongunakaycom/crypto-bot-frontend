@@ -1,8 +1,7 @@
 # CryptoAnalysisAI - Data-Driven Crypto Analysis ChatBot
 
-A React-based frontend application for a stock trading platform, inspired by Robinhood. This project demonstrates modern React development with organized components, state management, and multi-language support.
+A React-based frontend application for a stock trading platform. This project demonstrates modern React development with organized components, state management, and multi-language support.
 
-You can **try the live app** here: [robinhoodapp-65342.web.app](https://robinhoodapp-65342.web.app)
 
 ---
 
@@ -63,44 +62,6 @@ src/
 * **JavaScript (ES6+)** – Core logic
 * **React Router** – Navigation and protected routes
 * **Firebase** – Backend integration (frontend connected, backend not included for security)
-
----
-
-## Getting Started
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/ongunakaycom/robinhood-frontend.git
-```
-
-2. Navigate into the project directory:
-
-```bash
-cd robinhood-frontend
-```
-
-3. Install dependencies:
-
-```bash
-npm install
-# or
-yarn install
-```
-
----
-
-## Running the App
-
-```bash
-npm start
-# or
-yarn start
-```
-
-The app will run on `http://localhost:3000`.
-
-You can also **access the live demo** here: [robinhoodapp-65342.web.app](https://robinhoodapp-65342.web.app)
 
 ---
 
